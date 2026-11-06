@@ -1,0 +1,241 @@
+# ==============================================================================
+# YouTube RAG Bot - Production .gitignore
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Environment & Secret Variables
+# ------------------------------------------------------------------------------
+.env
+.env.*
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env*
+frontend/.env*
+
+# Preserve example/template environment files
+!.env.example
+!.env.*.example
+!*.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# SSL & Security Credentials
+*.pem
+*.key
+*.crt
+*.cert
+*.pfx
+*.p12
+
+# ------------------------------------------------------------------------------
+# 2. Python & Virtual Environments
+# ------------------------------------------------------------------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+venv.bak/
+env.bak/
+.env_test/
+
+# Packaging & Distribution
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ------------------------------------------------------------------------------
+# 3. ML Models, Embeddings & Reranking Caches
+# ------------------------------------------------------------------------------
+# FlashRank, FastEmbed & HuggingFace caches
+cache/
+.cache/
+backend/cache/
+flashrank_cache/
+hf_cache/
+huggingface/
+models/
+
+# Large model weights & ONNX runtimes
+*.onnx
+*.bin
+*.pt
+*.pth
+*.safetensors
+*.gguf
+
+# ------------------------------------------------------------------------------
+# 4. Celery, Redis & Background Workers
+# ------------------------------------------------------------------------------
+# Celery Beat persistent schedule database files
+celerybeat-schedule
+celerybeat-schedule.*
+celerybeat.pid
+
+# Redis local snapshot
+dump.rdb
+
+# ------------------------------------------------------------------------------
+# 5. Media, Audio & YouTube Ingestion Artifacts (yt-dlp / Whisper)
+# ------------------------------------------------------------------------------
+# Downloaded audio & video streams
+*.mp3
+*.wav
+*.m4a
+*.ogg
+*.opus
+*.flac
+*.aac
+*.mp4
+*.mkv
+*.webm
+*.avi
+
+# yt-dlp temporary files
+*.part
+*.ytdl
+
+# Temporary transcription & processing folders
+temp/
+tmp/
+temp_audio/
+youtube-audio-*/
+
+# ------------------------------------------------------------------------------
+# 6. Generated Reports & Documents
+# ------------------------------------------------------------------------------
+# Exported PDF summaries & generated assets
+*.pdf
+exports/
+reports/
+generated/
+
+# ------------------------------------------------------------------------------
+# 7. Databases & Local Vector Store Storage
+# ------------------------------------------------------------------------------
+# SQLite databases
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Local Qdrant / vector database persistent directories
+qdrant_storage/
+local_qdrant/
+chroma_db/
+storage/
+vector_store_data/
+
+# ------------------------------------------------------------------------------
+# 8. Frontend (Node / Vite / React)
+# ------------------------------------------------------------------------------
+# Node dependencies
+node_modules/
+frontend/node_modules/
+
+# Frontend production build outputs
+frontend/dist/
+frontend/dist-ssr/
+dist/
+
+# Bundler & tool caches
+.vite/
+.vite-temp/
+frontend/node_modules/.vite/
+.parcel-cache/
+.turbo/
+.eslintcache
+.oxlint_cache/
+
+# Package manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ------------------------------------------------------------------------------
+# 9. Testing, Coverage & Linters
+# ------------------------------------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+test-results/
+playwright-report/
+
+# ------------------------------------------------------------------------------
+# 10. Application Logs & Runtime State
+# ------------------------------------------------------------------------------
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# ------------------------------------------------------------------------------
+# 11. Operating System & System Files
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ------------------------------------------------------------------------------
+# 12. IDEs & Code Editors
+# ------------------------------------------------------------------------------
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
