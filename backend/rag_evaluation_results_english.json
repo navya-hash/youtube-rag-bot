@@ -1,0 +1,315 @@
+{
+    "total_samples": 15,
+    "successful_samples": 15,
+    "successful_generation_samples": 15,
+    "top_k": 5,
+    "average_metrics": {
+        "precision_at_k": 0.21333333333333335,
+        "recall_at_k": 0.7,
+        "faithfulness": 0.8287950937950938,
+        "answer_relevance": 0.9553333333333334,
+        "answer_correctness": 0.9299999999999999
+    },
+    "results": [
+        {
+            "question_id": "q1",
+            "question": "What is Retrieval-Augmented Generation (RAG)?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "74bead4d-5c43-54c0-9d22-f3e8c96561f2",
+                "a5c81a58-317c-5638-bb04-38a5232ae0b2",
+                "523f079e-47bd-5d62-a611-228b0377d7fd",
+                "bd353b63-0810-5863-aa43-1e32b1d81552",
+                "7428e748-cdea-5582-ba73-c52a0cf4a1a2"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.5,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.9,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.96,
+            "generated_answer": "Retrieval‑Augmented Generation (RAG) is a technique that combines a large language model (LLM) with an external knowledge‑retrieval step so that the model can answer questions or generate text using up‑to‑date, domain‑specific information without having to be retrained.\n\n**How it works (the basic pipeline)**  \n1. **Retrieval** – When a user asks a question, a retriever searches a knowledge source (documents, databases, web results, etc.) and returns the most relevant pieces of information.  \n2. **Context creation** – The retrieved pieces are turned into a “context” that is attached to the prompt sent to the LLM.  \n3. **Prompting** – The prompt explicitly tells the LLM that it may use the provided context to answer the query.  \n4. **Generation** – The LLM generates the final answer, now grounded in the retrieved knowledge.  \n\nThis whole flow is referred to in the video as the **retrieval pipeline**【Source 2, 877.199‑935.92】.\n\n**Why RAG is useful**  \n- It extends the capabilities of an LLM to a specific domain or an organization’s internal knowledge base without needing to fine‑tune or retrain the model.  \n- It is cost‑effective because the LLM only does generation; the heavy lifting of finding relevant facts is handled by the retriever.  \n- The output becomes more relevant, accurate, and useful for tasks such as question answering, translation, or sentence completion【Source 4, 136.319‑195.36】.\n\nIn short, Retrieval‑Augmented Generation is the process of augmenting a generative AI model with a retrieval step that supplies up‑to‑date context, enabling the model to produce answers that are both knowledgeable and grounded in external data."
+        },
+        {
+            "question_id": "q2",
+            "question": "How does RAG allow an LLM to use domain-specific knowledge without retraining?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "bd353b63-0810-5863-aa43-1e32b1d81552",
+                "ce736c5b-341a-5e49-a5ec-8e2cfe9583b3",
+                "a5c81a58-317c-5638-bb04-38a5232ae0b2",
+                "523f079e-47bd-5d62-a611-228b0377d7fd",
+                "5b38f71c-65dc-52f3-b04c-8d0a32d682f1"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 1.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 1.0,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.95,
+            "generated_answer": "RAG (Retrieval‑Augmented Generation) lets a large language model tap into domain‑specific knowledge by **pulling that knowledge in at query time instead of baking it into the model’s parameters**.  \n\n1. **External knowledge base** – RAG connects the LLM to a separate, authoritative source such as a vector database or an organization’s internal documents. This source contains the domain‑specific information that the model was never trained on 【Source 1, 136.3‑195.4】.  \n\n2. **Retrieval step** – When a user asks a question, a retriever searches the external knowledge base for the most relevant pieces of text (the “context”) 【Source 3, 877.2‑935.9】.  \n\n3. **Prompting with context** – The retrieved context is inserted into a prompt that explicitly tells the LLM to answer the question using that context 【Source 3, 877.2‑935.9】.  \n\n4. **Generation** – The LLM then generates its answer, guided by the supplied domain‑specific context. Because the model’s weights are unchanged, the approach avoids any need for costly retraining 【Source 1, 136.3‑195.4】.  \n\nIn short, RAG augments the LLM’s output by **referencing an external, up‑to‑date knowledge base at inference time**, making the system relevant, accurate, and cost‑effective for any specialized domain without modifying the underlying model."
+        },
+        {
+            "question_id": "q3",
+            "question": "What is the knowledge-cutoff limitation of an LLM?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "bd353b63-0810-5863-aa43-1e32b1d81552",
+                "2d8ff3f4-0e7c-5557-9125-ef1af31162bd",
+                "9f846148-c645-5bb4-80ed-a3906dbf9034",
+                "20544ab1-c7aa-50fa-b8cc-034a193961ac",
+                "a5c81a58-317c-5638-bb04-38a5232ae0b2"
+            ],
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 1.0,
+            "answer_relevance": 0.95,
+            "answer_correctness": 0.95,
+            "generated_answer": "The transcript explains that a large language model (LLM) only knows what was included in its training data.  \nWhen you ask the model about information that falls **outside of that training window**—for example, events that occurred between 1 August and 31 August—it does not actually have the facts. Because the model wants to give an answer rather than admit ignorance, it will **“hallucinate,”** i.e., fabricate a response that sounds plausible but is not based on real knowledge.  \n\nSo, the **knowledge‑cutoff limitation** of an LLM is that its knowledge stops at the date (or scope) of the data it was trained on; any query about later events or unseen information can lead to inaccurate, invented answers. This limitation is why retrieval‑augmented generation (RAG) is used—to fetch up‑to‑date, authoritative information from an external knowledge base and avoid the hallucination problem.  \n\n*Reference: the discussion of hallucination when asking about dates outside the model’s knowledge (286.8 – 345.9 seconds).*"
+        },
+        {
+            "question_id": "q4",
+            "question": "Why can an LLM hallucinate when it does not have sufficient information?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "9f846148-c645-5bb4-80ed-a3906dbf9034",
+                "5b38f71c-65dc-52f3-b04c-8d0a32d682f1",
+                "915ed290-a512-574b-98d4-a0047542cbfd",
+                "2d8ff3f4-0e7c-5557-9125-ef1af31162bd",
+                "20544ab1-c7aa-50fa-b8cc-034a193961ac"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.5,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.7142857142857143,
+            "answer_relevance": 0.95,
+            "answer_correctness": 0.95,
+            "generated_answer": "An LLM “hallucinates” when it is asked about something that isn’t covered by the knowledge it was trained on or by any external data you have supplied.  \nBecause the model is designed to produce a fluent response rather than admit ignorance, it will try to fill the gap with text that **looks** plausible. In the video the speaker explains that:\n\n* If you ask the model about events that occurred between 1 August and 31 August – a period that is not present in its training data – the model will still generate an answer instead of saying it doesn’t know. It does this because “it does not want to look like a fool” and therefore fabricates a response that the user might accept as true【Source 1, 286.8‑345.9】.  \n\n* The same problem appears when you use the LLM for a specific business use‑case. Even though the model has been trained on billions of internet documents, the company’s own policies, HR rules, finance guidelines, etc., are not part of its knowledge. When a query requires that missing information, the model again tries to answer, producing invented details – i.e., hallucination【Source 3, 334.16‑398.08】.\n\nIn short, hallucination occurs because:\n\n1. **Knowledge gaps** – the model lacks the factual data for the asked question.  \n2. **Generation objective** – the model is optimized to produce a coherent, confident‑sounding output, not to refuse or admit uncertainty.  \n3. **Desire to appear competent** – as the speaker puts it, the model “does not want to look like a fool,” so it fabricates an answer rather than staying silent.\n\nTherefore, when sufficient information is missing, the LLM fills the void with invented content, which is what we call hallucination."
+        },
+        {
+            "question_id": "q5",
+            "question": "Why might an organization need to provide its internal data to an LLM?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "bd353b63-0810-5863-aa43-1e32b1d81552",
+                "2d8ff3f4-0e7c-5557-9125-ef1af31162bd",
+                "915ed290-a512-574b-98d4-a0047542cbfd",
+                "40df3c62-21b4-509c-b408-3f6815c3ef87",
+                "20544ab1-c7aa-50fa-b8cc-034a193961ac"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.5,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.7142857142857143,
+            "answer_relevance": 0.95,
+            "answer_correctness": 0.95,
+            "generated_answer": "An organization often has information that is **specific to its own operations**—such as company policies, HR guidelines, finance rules, product details, or any other proprietary knowledge. A large language model (LLM) is trained on massive public data, so it may not contain these internal facts. If the model is asked a question that requires that proprietary information, it can either:\n\n* **Hallucinate** an answer that sounds plausible but is wrong, or  \n* Simply be unable to answer because the needed knowledge isn’t in its training set.\n\nBy feeding the organization’s internal data into the LLM (typically through a “data‑injection pipeline” that parses the documents, creates embeddings, and stores them in a vector database) the model can **retrieve and cite the authoritative, up‑to‑date internal knowledge** when answering queries. This makes the LLM’s output:\n\n* **More relevant** to the organization’s specific use case,  \n* **More accurate** because it draws on the correct internal sources, and  \n* **Less prone to hallucination** since it can reference the actual policies or data that exist inside the company.\n\nThus, providing internal data enables the LLM to act as a useful, domain‑specific assistant rather than a generic, potentially misleading chatbot. (See the discussion of internal policies and the data‑injection pipeline in the transcript around 334 s–398 s and 579 s–651 s.)"
+        },
+        {
+            "question_id": "q6",
+            "question": "Why can fine-tuning an LLM with private organizational data be expensive and tedious?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "07134a78-3b49-59f6-8d52-712b0c031786",
+                "ebcc481e-771f-57de-958d-3e5878ef89dd",
+                "bd353b63-0810-5863-aa43-1e32b1d81552",
+                "5b38f71c-65dc-52f3-b04c-8d0a32d682f1",
+                "915ed290-a512-574b-98d4-a0047542cbfd"
+            ],
+            "precision_at_k": 0.4,
+            "recall_at_k": 1.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 1.0,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.9,
+            "generated_answer": "Fine‑tuning a large language model (LLM) with your company’s private data can be both **expensive** and **tedious** for two main reasons that the speaker explains in the video:\n\n1. **Scale of the model** – The LLMs used for generative AI contain **billions of parameters**. Adjusting (or “tweaking”) such a massive number of weights requires a great deal of computational power and time. The speaker notes that “fine‑tuning a model is a very expensive process, very tedious process because this LLM … has billions of parameters and tweaking these billions of parameters usually takes a lot of time” (≈ 383 – 445 s)【Source 1】.\n\n2. **Continuous data updates** – In a startup, policies and other internal documents (HR, finance, etc.) are **constantly changing**. If you rely on fine‑tuning, you would have to re‑run the costly fine‑tuning step **every time the data is updated**. The speaker points out that “these all policies and this all data will also keep on getting updated … we cannot just go ahead and fine‑tune it like every day” (≈ 430 – 490 s)【Source 2】. This need for frequent re‑training adds further expense and operational overhead.\n\nTogether, the sheer computational demand of adjusting billions of parameters and the necessity to repeat the process whenever the organization’s private data changes make fine‑tuning an LLM a costly and labor‑intensive solution."
+        },
+        {
+            "question_id": "q7",
+            "question": "Why can RAG be more practical than repeatedly fine-tuning a model when organizational data changes frequently?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "07134a78-3b49-59f6-8d52-712b0c031786",
+                "ebcc481e-771f-57de-958d-3e5878ef89dd",
+                "bd353b63-0810-5863-aa43-1e32b1d81552",
+                "ce736c5b-341a-5e49-a5ec-8e2cfe9583b3",
+                "2e651bbe-81c9-5c24-ace8-3670502386bc"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 1.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 1.0,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.96,
+            "generated_answer": "RAG (Retrieval‑Augmented Generation) is far more practical than repeatedly fine‑tuning a large language model when your organization’s policies, finance rules, or other internal documents are constantly changing. The transcript explains the reasons:\n\n1. **Fine‑tuning is costly and slow**  \n   - The speaker notes that “fine‑tuning a model is a very expensive process … because this LLM … has billions of parameters and tweaking these billions of parameters usually takes a lot of time” (Source 1, 383.84‑445.68 s).  \n   - Because of that overhead, you cannot afford to re‑train the model every time a policy is updated.\n\n2. **Data updates happen continuously**  \n   - The speaker points out that “these all policies and this all data will also keep on getting updated as we run the startup … every time we cannot just go ahead and fine‑tune it like every day” (Source 2, 430.88‑490.72 s).  \n   - This makes a daily or frequent fine‑tuning workflow impractical.\n\n3. **RAG avoids the need for retraining**  \n   - RAG “extends the already powerful capabilities of LLM to a specific domain or an organizational internal knowledge base all without the need to retrain the model” (Source 3, 136.319‑195.36 s).  \n   - It works by **retrieving** relevant documents from an external, authoritative knowledge base **before** the LLM generates its answer, so the model always sees the latest information.\n\n4. **RAG is cost‑effective and keeps the output up‑to‑date**  \n   - Because the knowledge base can be updated independently of the model, you simply add or modify documents, and the next query will automatically draw from the new content. This eliminates the repeated expense and time of fine‑tuning while still delivering “relevant, accurate and useful” responses (Source 3).  \n   - The transcript also describes RAG as “a process of optimizing the output of a large language model … it references an authoritative knowledge base outside of its training data” (Source 4, 477.919‑537.92 s), which directly addresses the hallucination problem and ensures the answer is grounded in the latest internal data.\n\n**In summary:** Fine‑tuning a massive LLM each time your internal policies change is prohibitively expensive and slow. RAG sidesteps this by keeping the LLM static and pulling the most recent, authoritative information from an external knowledge base at query time, making it a far more practical, scalable, and cost‑effective solution for rapidly evolving organizational data."
+        },
+        {
+            "question_id": "q8",
+            "question": "What are the two major pipelines in a traditional RAG architecture?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "ce736c5b-341a-5e49-a5ec-8e2cfe9583b3",
+                "a5c81a58-317c-5638-bb04-38a5232ae0b2",
+                "27244c21-7c29-5bda-a863-b85951c4ddbb",
+                "74bead4d-5c43-54c0-9d22-f3e8c96561f2",
+                "bf968e07-3f95-5143-93e4-f40253d324fa"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.5,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.75,
+            "answer_relevance": 0.95,
+            "answer_correctness": 0.96,
+            "generated_answer": "In a **traditional Retrieval‑Augmented Generation (RAG)** setup the workflow is split into two distinct pipelines:\n\n1. **Data‑injection pipeline** – This part is responsible for bringing external knowledge into the system. It typically includes  \n   * ingesting raw documents,  \n   * parsing them into a usable format,  \n   * generating vector embeddings, and  \n   * storing those embeddings (e.g., in a vector database) so they can be searched later.  \n\n2. **Retrieval pipeline** – When a user query arrives, this pipeline  \n   * takes the query,  \n   * searches the stored embeddings to fetch the most relevant pieces of context,  \n   * passes that context to the LLM together with a prompt that instructs the model to answer using the retrieved information, and  \n   * finally returns the model’s output.  \n\nThese two pipelines together constitute the core of a traditional RAG architecture, as explained in the video (see the discussion around 1015 – 1068 seconds)."
+        },
+        {
+            "question_id": "q9",
+            "question": "What are the main stages of the data ingestion pipeline?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "bf968e07-3f95-5143-93e4-f40253d324fa",
+                "2d8ff3f4-0e7c-5557-9125-ef1af31162bd",
+                "40df3c62-21b4-509c-b408-3f6815c3ef87",
+                "a5bc3419-f6ab-5d1c-911d-5dc4e755683b",
+                "96c3091e-ae7d-50b8-b9a4-b6cfc4500df1"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.5,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.8333333333333334,
+            "answer_relevance": 0.95,
+            "answer_correctness": 0.65,
+            "generated_answer": "The video explains that a **data‑injection (or data‑ingestion) pipeline** consists of three core steps:\n\n1. **Data parsing** – The raw source files (PDFs, HTML pages, Excel sheets, SQL tables, or any other unstructured format) are first read and broken down into manageable chunks of text.  \n2. **Embeddings generation** – Each chunk of text is converted into a high‑dimensional vector using an embedding model (e.g., OpenAI, Google, Hugging Face, or other open‑source models). This step turns the textual information into numerical representations that can be searched efficiently.  \n3. **Storing the vectors** – The resulting vectors are written to a vector database (vector store). This vector DB becomes the knowledge base that the LLM will query at runtime.\n\nThese stages are described in the transcript around 10:19‑10:48 min (1015.5‑1068.6 s) where the speaker says: “we will be performing data injection… we will go ahead and do data parsing. Then we’ll perform embeddings. Then we will store everything into …” and again in the earlier segment (9:39‑10:34 min, 579.4‑650.9 s) that outlines parsing → embeddings → storage."
+        },
+        {
+            "question_id": "q10",
+            "question": "What types of data sources or file formats can be used in a RAG ingestion pipeline?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "a5c81a58-317c-5638-bb04-38a5232ae0b2",
+                "40df3c62-21b4-509c-b408-3f6815c3ef87",
+                "a5bc3419-f6ab-5d1c-911d-5dc4e755683b",
+                "7428e748-cdea-5582-ba73-c52a0cf4a1a2",
+                "27244c21-7c29-5bda-a863-b85951c4ddbb"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.5,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.875,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.95,
+            "generated_answer": "In a Retrieval‑Augmented Generation (RAG) ingestion pipeline you can pull in virtually any kind of data, because the pipeline first parses the source and then converts the text into vector embeddings. The video explicitly lists several common formats and sources that can be handled:\n\n* **PDF files** – typical for documents, reports, manuals, etc.  \n* **HTML pages** – web pages or any content that can be rendered as HTML.  \n* **Excel spreadsheets** – tabular data stored in .xlsx or .xls files.  \n* **SQL databases** – structured data that can be queried directly from a relational database.  \n* **Unstructured data** – any other free‑form text or binary content that doesn’t fit a strict schema (e.g., plain‑text files, logs, images with OCR‑extracted text, etc.).\n\nThe speaker emphasizes that “any format” can be processed as long as it is first **parsed** and **chunked** before being embedded and stored in a vector store. These formats are mentioned around 579 – 651 seconds and 636 – 700 seconds of the video."
+        },
+        {
+            "question_id": "q11",
+            "question": "Why are document parsing and chunking performed before storing data in a vector database?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "7428e748-cdea-5582-ba73-c52a0cf4a1a2",
+                "c13860d5-4f9e-57fc-a921-1824b2479256",
+                "40df3c62-21b4-509c-b408-3f6815c3ef87",
+                "81f0ada0-64f3-52d5-939b-d6e19493433b",
+                "3f347763-7135-5bd9-a6ca-88b5a234eab0"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 1.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.5454545454545454,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.95,
+            "generated_answer": "Document parsing and chunking are done **before** the data is written to a vector database because they prepare the raw material so that it can be turned into useful vector embeddings.\n\n1. **Parsing extracts the content** – The source files can be PDFs, HTML pages, Excel sheets, SQL tables or any other unstructured/structured format. The first step is to read those files and convert them into a uniform “document” representation that the rest of the pipeline can work with. (see the discussion at 636 – 699 s and 1102 – 1156 s).\n\n2. **Chunking breaks the document into manageable pieces** – After parsing, the text is split into smaller “chunks.” Chunking is essential because the embedding models operate on limited‑size inputs, and each chunk will later become a separate vector. If you tried to embed an entire large document at once, the model would either truncate the text or produce a single, overly‑broad vector that is less useful for retrieval. (the importance of chunking is highlighted at 636 – 699 s and again at 687 – 748 s).\n\n3. **Vectors are stored per chunk** – Once each chunk is passed through an embedding model, it is converted into a numerical vector. These vectors are then saved in a vector store / vector DB, where similarity‑search algorithms (e.g., cosine similarity) can quickly find the chunks that are most relevant to a user query. (see the explanation of embeddings and vector DB at 687 – 748 s).\n\nIn short, **parsing** gives the system a clean, consistent text representation, and **chunking** creates appropriately sized pieces that can each be embedded and indexed. Only after these steps can the data be stored efficiently in a vector database and later retrieved to augment the LLM’s responses."
+        },
+        {
+            "question_id": "q12",
+            "question": "What are embeddings, and why are they generated during data ingestion?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "3f347763-7135-5bd9-a6ca-88b5a234eab0",
+                "a5bc3419-f6ab-5d1c-911d-5dc4e755683b",
+                "d43db889-ce0a-5592-80a1-f8426ba9b800",
+                "81f0ada0-64f3-52d5-939b-d6e19493433b",
+                "40df3c62-21b4-509c-b408-3f6815c3ef87"
+            ],
+            "precision_at_k": 0.4,
+            "recall_at_k": 1.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.9090909090909091,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.95,
+            "generated_answer": "**Embeddings are numerical (vector) representations of text.**  \nIn the video the speaker explains that an embedding model “converts text into vectors” – essentially turning words, sentences or whole documents into a series of numbers that capture their semantic meaning (Source 4, 687.2‑748.48 s; Source 2, 737.04‑788.72 s). These vectors can then be used with similarity‑search algorithms such as cosine similarity to find pieces of text that are close to each other in meaning.\n\n**Why they are generated during data ingestion (the “data‑injection pipeline”)**\n\n1. **Transform raw data into a searchable form** – After the raw data is parsed (PDF, HTML, Excel, SQL, etc.), the pipeline runs an embedding step so that every chunk of text is turned into a vector (Source 5, 579.36‑650.88 s).  \n\n2. **Store the vectors in a vector database (vector store)** – The resulting vectors are saved in a vector DB, which is the storage layer that the retrieval system will query later (Source 2, 737.04‑788.72 s; Source 4, 687.2‑748.48 s).  \n\n3. **Enable efficient similarity search and retrieval‑augmented generation** – When a user asks a question, the system can embed the query, compare it to the stored vectors, and quickly retrieve the most relevant chunks. Those chunks are then supplied as context to the LLM, a process the video calls “augmentation” (Source 1, 1056‑1113 s).  \n\nIn short, embeddings are generated during ingestion to convert unstructured text into a compact, numeric form that can be indexed, searched, and fed to a language model as contextual knowledge."
+        },
+        {
+            "question_id": "q13",
+            "question": "How does a RAG system retrieve relevant information using a user's query?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "523f079e-47bd-5d62-a611-228b0377d7fd",
+                "bd353b63-0810-5863-aa43-1e32b1d81552",
+                "20544ab1-c7aa-50fa-b8cc-034a193961ac",
+                "a5c81a58-317c-5638-bb04-38a5232ae0b2",
+                "7428e748-cdea-5582-ba73-c52a0cf4a1a2"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.5,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.8571428571428571,
+            "answer_relevance": 0.94,
+            "answer_correctness": 0.95,
+            "generated_answer": "A Retrieval‑Augmented Generation (RAG) system works in three linked stages:\n\n1. **Prepare the knowledge base** –  \n   The raw material (documents, Excel files, SQL tables, or any unstructured text) is first **parsed** and **chunked** into manageable pieces. Each chunk is turned into a vector representation and stored in a **vector store / vector DB** so that similarity can be measured later【Source 5, 636.48‑699.92】.\n\n2. **Retrieve relevant chunks with the user’s query** –  \n   When a user submits a query, the system creates an embedding for that query and searches the vector store for the most similar vectors. The matching chunks become the **context** that is relevant to the question【Source 4, 877.199‑935.92】.\n\n3. **Generate the answer** –  \n   The retrieved context is combined with a **prompt** that tells the LLM to “use this context to answer the question.” The LLM then processes the prompt + context and produces the final output【Source 4, 877.199‑935.92】.\n\nIn short, a RAG system turns the user’s query into a vector, finds the most similar stored vectors (i.e., the relevant pieces of knowledge), feeds those pieces to the language model together with an instruction prompt, and the model generates an answer that is grounded in the retrieved information. This retrieval‑then‑generation pipeline lets the system answer questions accurately without needing to retrain the underlying LLM【Source 2, 136.319‑195.36】."
+        },
+        {
+            "question_id": "q14",
+            "question": "What do retrieval, augmentation, and generation mean in a RAG workflow?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "3f347763-7135-5bd9-a6ca-88b5a234eab0",
+                "a5c81a58-317c-5638-bb04-38a5232ae0b2",
+                "74bead4d-5c43-54c0-9d22-f3e8c96561f2",
+                "2e651bbe-81c9-5c24-ace8-3670502386bc",
+                "bd353b63-0810-5863-aa43-1e32b1d81552"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 1.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.3333333333333333,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.96,
+            "generated_answer": "**Retrieval** – The first step in a RAG (Retrieval‑Augmented Generation) workflow is to pull the most relevant pieces of information from an external knowledge source (e.g., a vector store, a document database, or any “authoritative knowledge base”). This fetched material is what the system later passes to the language model as *context* 【Source 1, 1056‑1113】.\n\n**Augmentation** – Once the relevant data has been retrieved, it is **augmented** to the LLM’s prompt. In other words, the retrieved context is attached to a carefully‑written instruction (the prompt) that tells the model it may use that context to answer the user’s query. Augmentation therefore means “giving the LLM a context + prompt so it can produce a more informed answer” 【Source 1, 1056‑1113】.\n\n**Generation** – After the model receives the augmented prompt (context + instruction), it **generates** the final response. This is the output that the user sees, produced by the LLM using both its internal knowledge and the external context supplied during augmentation 【Source 1, 1056‑1113】.\n\nIn summary, a RAG pipeline works as follows:\n\n1. **Retrieval** – fetch relevant external information.  \n2. **Augmentation** – combine that information with a prompt to give the LLM a richer context.  \n3. **Generation** – the LLM uses the augmented prompt to produce the answer.  \n\nThese three stages together form the “retrieval‑augmented generation” process described throughout the video."
+        },
+        {
+            "question_id": "q15",
+            "question": "Does RAG completely eliminate hallucinations? Explain why or why not.",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "5b38f71c-65dc-52f3-b04c-8d0a32d682f1",
+                "ce736c5b-341a-5e49-a5ec-8e2cfe9583b3",
+                "9f846148-c645-5bb4-80ed-a3906dbf9034",
+                "523f079e-47bd-5d62-a611-228b0377d7fd",
+                "27244c21-7c29-5bda-a863-b85951c4ddbb"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 1.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 1.0,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.96,
+            "generated_answer": "No. Retrieval‑augmented generation (RAG) does **not** completely eliminate hallucinations.\n\n* **Why it helps:**  \n  RAG works by pulling relevant information from an external, authoritative knowledge source (e.g., a vector database or web retrievers) and feeding that context to the large language model. By grounding the model’s answer in real data, the likelihood of fabricating facts is reduced. The speaker describes this as “optimizing the output of a large language model” and “referencing an authoritative knowledge base outside of its training data” (≈ 477 – 538 s).\n\n* **Why it doesn’t fully solve the problem:**  \n  The transcript explicitly states that RAG “will not completely remove hallucination” and that “some amount of hallucination… may still occur” (≈ 926 – 984 s). If a user’s query asks for information that is **not** present in the retrieved documents, the LLM has nothing factual to rely on and can still “hallucinate” an answer, just as it would when operating without retrieval (≈ 287 – 346 s).\n\nTherefore, RAG mitigates hallucinations by providing concrete context, but it cannot guarantee that every answer will be factual; gaps in the retrieved knowledge base can still lead the model to generate invented content."
+        }
+    ]
+}

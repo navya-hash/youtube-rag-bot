@@ -17,7 +17,7 @@ from app.core.redis_client import get_redis_client
 
 logger = logging.getLogger(__name__)
 
-RETRIEVAL_CACHE_PREFIX = "youtube_rag:retrieval:v1"
+RETRIEVAL_CACHE_PREFIX = "youtube_rag:retrieval:v2"
 RETRIEVAL_CACHE_TTL = 60 * 15  # 15 minutes
 
 
@@ -25,6 +25,7 @@ def _retrieval_cache_key(
     owner_id: UUID,
     chat_id: UUID,
     video_ids: list[UUID],
+    video_versions: dict[str, int],
     question: str,
     limit: int,
 ) -> str:
@@ -34,6 +35,7 @@ def _retrieval_cache_key(
         "owner_id": str(owner_id),
         "chat_id": str(chat_id),
         "video_ids": sorted(str(video_id) for video_id in video_ids),
+        "video_versions": video_versions,
         "question": " ".join(question.casefold().split()),
         "limit": limit,
     }
@@ -80,21 +82,94 @@ def _get_cached_chunks(cache_key: str) -> list[dict] | None:
         return None
 
 
-def _cache_chunks(cache_key: str, chunks: list[dict]) -> None:
-    """Store reranked chunks in Redis."""
+def _cache_chunks(
+    cache_key: str,
+    chunks: list[dict],
+    owner_id: UUID,
+    video_ids: list[UUID],
+) -> None:
+    """
+    Cache retrieval results and register their video dependencies.
+    """
 
     try:
         redis_client = get_redis_client()
 
-        redis_client.set(
+        pipeline = redis_client.pipeline()
+
+        pipeline.set(
             cache_key,
             json.dumps(chunks, ensure_ascii=False),
             ex=RETRIEVAL_CACHE_TTL,
         )
 
+        for video_id in video_ids:
+            dependency_key = _retrieval_video_dependency_key(
+                owner_id=owner_id,
+                video_id=video_id,
+            )
+
+            pipeline.sadd(dependency_key, cache_key)
+
+            pipeline.expire(
+                dependency_key,
+                RETRIEVAL_CACHE_TTL,
+            )
+
+        pipeline.execute()
+
     except (RedisError, TypeError, ValueError):
         logger.warning(
-            "Retrieval cache write failed.",
+            "Retrieval cache write failed. Continuing without cache.",
+            exc_info=True,
+        )
+
+
+
+def _retrieval_video_dependency_key(
+    owner_id: UUID,
+    video_id: UUID,
+) -> str:
+    return (
+        f"{RETRIEVAL_CACHE_PREFIX}:"
+        f"dependencies:{owner_id}:{video_id}"
+    )
+
+
+def invalidate_retrieval_cache_for_video(
+    owner_id: UUID,
+    video_id: UUID,
+) -> None:
+    """
+    Invalidate every retrieval cache entry that depends
+    on this owner's specified video.
+    """
+
+    try:
+        redis_client = get_redis_client()
+
+        dependency_key = _retrieval_video_dependency_key(
+            owner_id=owner_id,
+            video_id=video_id,
+        )
+
+        cache_keys = redis_client.smembers(dependency_key)
+
+        if cache_keys:
+            redis_client.delete(*cache_keys)
+
+        redis_client.delete(dependency_key)
+
+        logger.info(
+            "Invalidated %d retrieval cache entries for video %s.",
+            len(cache_keys),
+            video_id,
+        )
+
+    except RedisError:
+        logger.warning(
+            "Retrieval cache invalidation failed for video %s.",
+            video_id,
             exc_info=True,
         )
 
@@ -145,14 +220,20 @@ def retrieve_relevant_chunks(
 
         video_ids = [video.id for video in completed_videos]
 
+        video_versions = {
+    str(video.id): video.content_version
+    for video in completed_videos
+}
+
         # 2. Check whether the final retrieval result is cached.
         cache_key = _retrieval_cache_key(
-            owner_id=owner_id,
-            chat_id=chat.id,
-            video_ids=video_ids,
-            question=question,
-            limit=limit,
-        )
+    owner_id=owner_id,
+    chat_id=chat.id,
+    video_ids=video_ids,
+    video_versions=video_versions,
+    question=question,
+    limit=limit,
+)
 
         cached_chunks = _get_cached_chunks(cache_key)
 
@@ -213,7 +294,12 @@ def retrieve_relevant_chunks(
         )
 
         # 6. Cache the final reranked results.
-        _cache_chunks(cache_key, final_chunks)
+        _cache_chunks(
+    cache_key=cache_key,
+    chunks=final_chunks,
+    owner_id=owner_id,
+    video_ids=video_ids,
+)
 
         logger.info(
             "Retrieved %d candidates and selected %d reranked chunks.",
@@ -230,5 +316,6 @@ def retrieve_relevant_chunks(
         raise RetrievalError(
             "Unable to retrieve relevant video context."
         ) from exc
+
 
 

@@ -1,0 +1,143 @@
+[
+  {
+    "question_id": "q1",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "What is RAG and why is it used?",
+    "relevant_chunk_ids": [
+      "f440c626-79f5-5851-a5eb-5677cde83a29",
+      "97ddd60d-4440-53a9-b077-0a85c381e402",
+      "32a25a92-bb4d-5749-9828-2754d1a1020b"
+    ],
+    "reference_answer": "RAG (Retrieval-Augmented Generation) is an AI technique used to improve the accuracy and quality of model-generated responses by connecting the LLM to an external, up-to-date database in real time. Instead of relying solely on training memory, it first retrieves relevant contextual documents and augments the user's prompt before generating an answer, functioning much like an open-book exam."
+  },
+  {
+    "question_id": "q2",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "How does RAG make LLM responses more context-aware?",
+    "relevant_chunk_ids": [
+      "97ddd60d-4440-53a9-b077-0a85c381e402",
+      "5317d2b5-bb00-59df-8f0d-013c725f0664",
+      "90eebef7-493b-57fd-9a7e-52f9c0704043"
+    ],
+    "reference_answer": "RAG makes LLM responses context-aware by providing the model with access to specific, real-time external data relevant to the query. For example, in customer support for a flight delay, a RAG agent can look up the user's login identity, booked flight number, PNR, and arrival status from the airline database, delivering a tailored, specific answer rather than a generic response."
+  },
+  {
+    "question_id": "q3",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "How does RAG help reduce hallucinations?",
+    "relevant_chunk_ids": [
+      "90eebef7-493b-57fd-9a7e-52f9c0704043"
+    ],
+    "reference_answer": "LLMs can become overconfident and fabricate false facts when they lack accurate knowledge, a problem known as hallucination. RAG reduces hallucinations by grounding the model's responses in factual, verifiable information retrieved directly from an external knowledge base or database."
+  },
+  {
+    "question_id": "q4",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "What are the main benefits of RAG?",
+    "relevant_chunk_ids": [
+      "90eebef7-493b-57fd-9a7e-52f9c0704043",
+      "2714b351-204b-5944-b959-0f169b9d24db",
+      "a34b5083-b072-52e8-9e20-ea3d90512eb5",
+      "75a99fd2-a1bf-5648-8e1f-6b7fcfd59e28"
+    ],
+    "reference_answer": "The main benefits of RAG are: 1) Reducing hallucinations through grounded real data; 2) Keeping knowledge up to date without being limited by training cutoff dates; 3) Cost efficiency by avoiding expensive continuous pre-training or fine-tuning; and 4) Preserving data privacy, since models only retrieve query-relevant chunks rather than exposing entire internal enterprise databases."
+  },
+  {
+    "question_id": "q5",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "What are the two main stages of the RAG pipeline?",
+    "relevant_chunk_ids": [
+      "0721630f-ceba-5a77-8192-ca806cf9f690",
+      "0da8bf52-d33c-5ffc-a96e-8ca281f3df24",
+      "ebbf3f0d-5647-50ef-801a-2e845163021f",
+      "fffd39be-4e98-5583-ae6b-c801ec771723"
+    ],
+    "reference_answer": "The two main stages of the RAG pipeline are the data ingestion pipeline and the retrieval pipeline. The ingestion pipeline prepares the external data by extracting, chunking, embedding, and indexing it in a vector database. The retrieval pipeline handles incoming user queries by generating query embeddings, retrieving matching document chunks via similarity search, and passing the augmented prompt to the LLM for response generation."
+  },
+  {
+    "question_id": "q6",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "Explain the data ingestion pipeline.",
+    "relevant_chunk_ids": [
+      "0721630f-ceba-5a77-8192-ca806cf9f690",
+      "0da8bf52-d33c-5ffc-a96e-8ca281f3df24",
+      "de96c7b5-84d5-5fd2-be27-02cf117205ee",
+      "b898d75b-775f-544d-9c27-0554e293ad93",
+      "ebbf3f0d-5647-50ef-801a-2e845163021f"
+    ],
+    "reference_answer": "The data ingestion pipeline prepares documents for retrieval through sequential steps: 1) Collecting source data from formats like PDFs, spreadsheets, or internal databases; 2) Extracting text and splitting it into manageable segments called chunks; 3) Converting each chunk into numerical vector embeddings using an embedding model; and 4) Storing these embeddings in a vector database to enable semantic (meaning-based) similarity search."
+  },
+  {
+    "question_id": "q7",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "How does the retrieval and generation process work?",
+    "relevant_chunk_ids": [
+      "fffd39be-4e98-5583-ae6b-c801ec771723",
+      "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+      "32a25a92-bb4d-5749-9828-2754d1a1020b"
+    ],
+    "reference_answer": "The retrieval and generation process operates in four steps: 1) Query embedding: the user query is converted into an embedding using the ingestion embedding API; 2) Retrieval: semantic similarity search finds the top ranked chunks in the vector database to form the context; 3) Augmentation: the original query and context are combined into an augmented prompt; and 4) Generation: the LLM processes the augmented prompt and generates the final answer."
+  },
+  {
+    "question_id": "q8",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "What is the difference between fixed-size and semantic chunking?",
+    "relevant_chunk_ids": [
+      "d4cba469-3ff9-5d8c-869a-7a33ac8d00a2",
+      "e6d72e9d-f76d-5033-8676-e572f4d619d4"
+    ],
+    "reference_answer": "Fixed-size chunking splits text at predetermined token or character thresholds (e.g., every 500 tokens); it is straightforward to implement but can break contextual meaning mid-sentence. Semantic chunking splits text based on changes in meaning or topic shifts, which is computationally slower but yields coherent, higher-quality chunks."
+  },
+  {
+    "question_id": "q9",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "How does Hybrid RAG differ from Standard RAG?",
+    "relevant_chunk_ids": [
+      "0e99f791-2167-5fea-8b51-bc75d02e27d0",
+      "f144a7de-f09f-5a1c-8acb-afd9d46f95f2"
+    ],
+    "reference_answer": "Standard RAG uses only vector similarity search, which excels at semantic meaning but is weak at exact keyword matching (such as specific IDs, names, or terminology). Hybrid RAG combines vector search with keyword-based search to leverage both semantic understanding and exact keyword retrieval, making it ideal for enterprise and e-commerce applications."
+  },
+  {
+    "question_id": "q10",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "How does RAG with memory work?",
+    "relevant_chunk_ids": [
+      "f144a7de-f09f-5a1c-8acb-afd9d46f95f2",
+      "44a07842-0924-5bf0-b183-67a809de53ff"
+    ],
+    "reference_answer": "Unlike standard RAG which processes queries independently without remembering past interactions, RAG with memory adds a dedicated memory layer to maintain a running thread of previous conversation turns. This allows the system to resolve references and understand follow-up questions in multi-turn dialogues."
+  },
+  {
+    "question_id": "q11",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "What is Graph RAG and when is it useful?",
+    "relevant_chunk_ids": [
+      "44a07842-0924-5bf0-b183-67a809de53ff",
+      "cee94d79-9371-5e11-8fe1-5b14c46d00b4"
+    ],
+    "reference_answer": "Graph RAG models data as a knowledge graph where entities are nodes and relationships between them are edges, instead of treating documents as disconnected chunks. It is especially useful for complex, knowledge-heavy domains with deeply interconnected concepts, such as fraud detection, legal cases, and research analysis."
+  },
+  {
+    "question_id": "q12",
+    "chat_id": "5dcc866a-09ea-4278-a065-285d5bb7ced2",
+    "video_id": "0dea0eb3-0f05-4394-b4d6-d7137f7ce59b",
+    "question": "How does Agentic RAG work?",
+    "relevant_chunk_ids": [
+      "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc",
+      "fcc7b772-73b8-5d2a-9993-d4d7daedc249"
+    ],
+    "reference_answer": "Agentic RAG utilizes an autonomous AI agent to handle complex, multi-part queries that cannot be solved with a single retrieval step. The agent decomposes the user request into multiple sub-queries, executes multi-step retrievals, and can invoke external tools (such as web search or financial APIs) before synthesizing the final comprehensive answer."
+  }
+]

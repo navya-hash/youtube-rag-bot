@@ -12,11 +12,17 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     qdrant_url: str | None = None
     qdrant_api_key: str | None = None
-    qdrant_collection_name: str = "youtube_transcripts"
+    qdrant_collection_name: str = "youtube_transcripts_multilingual"
+    qdrant_multilingual_collection_name: str = "youtube_transcripts_multilingual"
     groq_api_key: str | None = None
-    groq_model: str = "openai/gpt-oss-120b"  
+    groq_model: str = "openai/gpt-oss-120b" 
+    groq_classifier_model: str = "openai/gpt-oss-20b" 
     # embedding_model: str = "text-embedding-3-small"
-    embedding_model: str = "BAAI/bge-small-en-v1.5"
+    # embedding_model: str = "BAAI/bge-small-en-v1.5"
+    embedding_model: str = (
+        "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    )
+    embedding_dimension: int = 384
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

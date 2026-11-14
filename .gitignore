@@ -239,3 +239,17 @@ $RECYCLE.BIN/
 *.sublime-workspace
 *.swp
 *.swo
+
+# Python tooling
+.pyre/
+.pytype/
+.pytest_cache/
+pip-wheel-metadata/
+
+# Local environment overrides
+.envrc
+.python-version.local
+
+# Local test artifacts
+test_output/
+*.prof

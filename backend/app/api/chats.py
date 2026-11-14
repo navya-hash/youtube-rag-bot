@@ -1,7 +1,18 @@
 
 import uuid
 import logging
+from app.services.guardrails.intent_classifier import (
+    classify_intent,
+    Intent,
+)
 
+from app.services.guardrails.context_relevance import (
+    check_context_relevance,
+    ContextRelevance,
+)
+# Depends avoids repeatedly writing the same setup logic in different API endpoints.
+
+# It is also used for authentication, authorization, and other reusable services.
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -27,6 +38,7 @@ from app.services.llm import (
     LLMServiceError,
 )
 from app.core.languages import SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE
+from pydantic import BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/chats", tags=["Chats"])
@@ -45,8 +57,24 @@ class MessageRequest(BaseModel):
     content: str = Field(min_length=1, max_length=50000)
 
 
+# class AskRequest(BaseModel):
+#     question: str = Field(min_length=1, max_length=10000)
+
 class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=10000)
+
+    @field_validator("question", mode="before")
+    @classmethod
+    def validate_question(cls, value):
+        if not isinstance(value, str):
+            raise ValueError("Question must be a string.")
+
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Question cannot be empty or whitespace.")
+
+        return value
 
 
 def resolve_user(db: Session, clerk_user_id: str):
@@ -241,6 +269,7 @@ def add_message_endpoint(
     }
 
 
+
 @router.post("/{chat_id}/ask")
 def ask_question_endpoint(
     chat_id: uuid.UUID,
@@ -278,12 +307,127 @@ def ask_question_endpoint(
         if message.role in {"user", "assistant"}
     ]
 
-    # 3. Rewrite the question to resolve follow-up references.
+    # 3. Classify the user's intent.
+    try:
+        classification = classify_intent(
+            question=question,
+            conversation_history=conversation_history,
+        )
+
+    except LLMServiceError as exc:
+        logger.exception(
+            "Intent classification failed for chat_id=%s",
+            chat_id,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Unable to process your message right now.",
+        ) from exc
+
+    # 4. Block prompt-injection attempts before entering the RAG pipeline.
+    if classification.is_prompt_injection:
+        answer = (
+            "I can't follow instructions that attempt to override "
+            "my rules or reveal internal instructions. "
+            "Please ask a question about the videos attached to this chat."
+        )
+
+        user_message = save_message(
+            db=db,
+            chat=chat,
+            role="user",
+            content=question,
+            output_language=chat.output_language,
+        )
+
+        assistant_message = save_message(
+            db=db,
+            chat=chat,
+            role="assistant",
+            content=answer,
+            citations=[],
+            output_language=chat.output_language,
+        )
+
+        return {
+            "chat_id": str(chat.id),
+            "question": {
+                "id": str(user_message.id),
+                "content": user_message.content,
+            },
+            "answer": {
+                "id": str(assistant_message.id),
+                "content": assistant_message.content,
+            },
+            "output_language": chat.output_language,
+            "standalone_question": question,
+            "citations": [],
+        }
+
+    # 5. Handle greetings and unrelated requests.
+    if classification.confidence >= 0.75:
+
+        if classification.intent == Intent.GREETING:
+            answer = (
+                "Hello! Ask me anything about the videos "
+                "attached to this chat."
+            )
+
+        elif classification.intent == Intent.OUT_OF_SCOPE:
+            answer = (
+                "I can help answer questions, explain concepts, "
+                "and summarize information from videos attached "
+                "to this chat. Please ask me something related "
+                "to those videos."
+            )
+
+        else:
+            answer = None
+
+    else:
+        answer = None
+
+    if answer is not None:
+
+        user_message = save_message(
+            db=db,
+            chat=chat,
+            role="user",
+            content=question,
+            output_language=chat.output_language,
+        )
+
+        assistant_message = save_message(
+            db=db,
+            chat=chat,
+            role="assistant",
+            content=answer,
+            citations=[],
+            output_language=chat.output_language,
+        )
+
+        return {
+            "chat_id": str(chat.id),
+            "question": {
+                "id": str(user_message.id),
+                "content": user_message.content,
+            },
+            "answer": {
+                "id": str(assistant_message.id),
+                "content": assistant_message.content,
+            },
+            "output_language": chat.output_language,
+            "standalone_question": question,
+            "citations": [],
+        }
+
+    # 6. Rewrite the question to resolve follow-up references.
     try:
         standalone_question = rewrite_question(
             question=question,
             conversation_history=conversation_history,
         )
+
     except LLMServiceError as exc:
         logger.exception(
             "Question rewriting failed for chat_id=%s",
@@ -294,7 +438,7 @@ def ask_question_endpoint(
             detail="Unable to process the follow-up question right now.",
         ) from exc
 
-    # 4. Retrieve and rerank relevant chunks.
+    # 7. Retrieve and rerank relevant chunks.
     try:
         retrieved_chunks = retrieve_relevant_chunks(
             db=db,
@@ -303,6 +447,7 @@ def ask_question_endpoint(
             question=standalone_question,
             limit=5,
         )
+
     except RetrievalError as exc:
         logger.exception(
             "Context retrieval failed for chat_id=%s",
@@ -313,16 +458,47 @@ def ask_question_endpoint(
             detail="Unable to retrieve video context right now.",
         ) from exc
 
-    # 5. Generate the answer using the original question.
+    # 8. Evaluate retrieved context relevance.
+    try:
+        relevance_result = check_context_relevance(
+            question=standalone_question,
+            context_chunks=retrieved_chunks,
+        )
+
+        logger.info(
+            "Context relevance for chat_id=%s: %s (%s)",
+            chat_id,
+            relevance_result.relevance.value,
+            relevance_result.reason,
+        )
+
+    except LLMServiceError as exc:
+        logger.exception(
+            "Context relevance evaluation failed for chat_id=%s",
+            chat_id,
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Unable to evaluate video context right now.",
+        ) from exc
+
+    # If the retrieved context is irrelevant, do not use it
+    # for answer generation or citations.
+    if relevance_result.relevance == ContextRelevance.IRRELEVANT:
+        retrieved_chunks = []
+
+    # 9. Generate the answer using the original question.
     try:
         output_language = chat.output_language or "English"
-        
+
         answer = generate_answer(
-        question=question,
-        context_chunks=retrieved_chunks,
-        output_language=output_language,
-        cache_scope=f"{user.id}:{chat.id}",
-)
+            question=question,
+            context_chunks=retrieved_chunks,
+            output_language=output_language,
+            cache_scope=f"{user.id}:{chat.id}",
+            context_relevance=relevance_result.relevance.value,
+        )
+
     except LLMServiceError as exc:
         logger.exception(
             "Answer generation failed for chat_id=%s",
@@ -333,7 +509,7 @@ def ask_question_endpoint(
             detail="Unable to generate an answer right now.",
         ) from exc
 
-    # 6. Prepare source citations with retrieval and reranking scores.
+    # 10. Prepare source citations with retrieval and reranking scores.
     citations = [
         {
             "video_id": str(chunk["video_id"]),
@@ -352,25 +528,25 @@ def ask_question_endpoint(
         for chunk in retrieved_chunks
     ]
 
-    # 7. Save original question and generated answer.
+    # 11. Save original question and generated answer.
     user_message = save_message(
-    db=db,
-    chat=chat,
-    role="user",
-    content=question,
-    output_language=chat.output_language,
-)
+        db=db,
+        chat=chat,
+        role="user",
+        content=question,
+        output_language=chat.output_language,
+    )
 
     assistant_message = save_message(
-    db=db,
-    chat=chat,
-    role="assistant",
-    content=answer,
-    citations=citations,
-    output_language=chat.output_language,
-)
+        db=db,
+        chat=chat,
+        role="assistant",
+        content=answer,
+        citations=citations,
+        output_language=chat.output_language,
+    )
 
-    # 8. Return response.
+    # 12. Return response.
     return {
         "chat_id": str(chat.id),
         "question": {
@@ -385,5 +561,3 @@ def ask_question_endpoint(
         "standalone_question": standalone_question,
         "citations": citations,
     }
-
-

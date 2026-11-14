@@ -18,7 +18,11 @@ from app.services.youtube import (
 from app.services.chunking import chunk_transcript
 from app.services.embeddings import embed_texts
 from app.services.vector_store import ensure_collection, upsert_chunks,delete_video_chunks
-
+from app.services.vector_store import (
+    upsert_chunks,
+    delete_obsolete_video_chunks,
+)
+from app.services.retrieval import invalidate_retrieval_cache_for_video
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +70,7 @@ def ingest_video_for_chat(
         }
 
     try:
+        previous_status = video.status
         video.status = "processing"
         video.error_message = None
         db.commit()
@@ -101,31 +106,47 @@ def ingest_video_for_chat(
             )
 
         # 4. Ensure the Qdrant collection exists.
-        ensure_collection(vector_size=384)
+        ensure_collection()
 
         # 5. Remove old chunks before storing the new transcript.
-        delete_video_chunks(
-            owner_id=owner_id,
-            video_id=video.id,
-        )
-
-        # 6. Store the new transcript chunks.
+        # 1. Upload the newly generated chunks first.
         upsert_chunks(
             chunks=chunks,
             vectors=vectors,
             owner_id=owner_id,
         )
 
+        # 2. Remove old chunks that are not part of the new ingestion.
+        delete_obsolete_video_chunks(
+            owner_id=owner_id,
+            video_id=video.id,
+            keep_chunk_ids=[chunk["chunk_id"] for chunk in chunks],
+        )
+
+        
         # 6. Associate the successfully ingested video with the chat.
         add_video_to_chat(db, chat, video)
 
-        # 7. Mark ingestion as completed.
+        # 7. Update content version only when replacing
+        #    a previously completed video's transcript.
+        if previous_status == "completed":
+            video.content_version += 1
+
+        # 8. Mark ingestion as completed.
         video.status = "completed"
         video.language = transcript_data["language"]
         video.error_message = None
 
+        # Commit the new version before cache invalidation.
         db.commit()
         db.refresh(video)
+
+        # 9. Best-effort cleanup of old retrieval cache entries.
+        # Version-based keys already prevent old entries from being reused.
+        invalidate_retrieval_cache_for_video(
+            owner_id=owner_id,
+            video_id=video.id,
+        )
 
         return {
             "video_id": video.id,

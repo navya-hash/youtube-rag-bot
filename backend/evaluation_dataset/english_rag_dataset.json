@@ -1,0 +1,163 @@
+
+
+[
+  {
+    "question_id": "q1",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "What is Retrieval-Augmented Generation (RAG)?",
+    "relevant_chunk_ids": [
+      "2e651bbe-81c9-5c24-ace8-3670502386bc",
+      "bd353b63-0810-5863-aa43-1e32b1d81552"
+    ],
+    "reference_answer": "RAG connects an LLM to an external knowledge base. It retrieves relevant information and provides it to the LLM as context so the model can generate answers using knowledge beyond its original training data."
+  },
+  {
+    "question_id": "q2",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "How does RAG allow an LLM to use domain-specific knowledge without retraining?",
+    "relevant_chunk_ids": [
+      "bd353b63-0810-5863-aa43-1e32b1d81552"
+    ],
+    "reference_answer": "RAG retrieves relevant information from an external knowledge base and supplies it as context to the LLM. This allows the model to answer using domain-specific information without modifying or retraining its parameters."
+  },
+  {
+    "question_id": "q3",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "What is the knowledge-cutoff limitation of an LLM?",
+    "relevant_chunk_ids": [
+      "250678d7-8f2d-539b-b489-716d59e6321f"
+    ],
+    "reference_answer": "An LLM has a knowledge cutoff because its training data only covers information available up to a particular point. Consequently, it may not know about newer information or recent changes."
+  },
+  {
+    "question_id": "q4",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "Why can an LLM hallucinate when it does not have sufficient information?",
+    "relevant_chunk_ids": [
+      "250678d7-8f2d-539b-b489-716d59e6321f",
+      "9f846148-c645-5bb4-80ed-a3906dbf9034"
+    ],
+    "reference_answer": "An LLM can hallucinate when it lacks the necessary information to answer a question. Instead of relying on accurate supporting knowledge, it may generate an incorrect or fabricated response."
+  },
+  {
+    "question_id": "q5",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "Why might an organization need to provide its internal data to an LLM?",
+    "relevant_chunk_ids": [
+      "915ed290-a512-574b-98d4-a0047542cbfd",
+      "07134a78-3b49-59f6-8d52-712b0c031786"
+    ],
+    "reference_answer": "Organizations may need to provide internal data because their HR and finance policies are private and not publicly available, but they want to use this information in their chatbot."
+  },
+  {
+    "question_id": "q6",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "Why can fine-tuning an LLM with private organizational data be expensive and tedious?",
+    "relevant_chunk_ids": [
+      "07134a78-3b49-59f6-8d52-712b0c031786",
+      "ebcc481e-771f-57de-958d-3e5878ef89dd"
+    ],
+    "reference_answer": "Fine-tuning can be expensive and tedious because it involves modifying a model with a very large number of parameters. The video highlights this difficulty when discussing private organizational data."
+  },
+  {
+    "question_id": "q7",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "Why can RAG be more practical than repeatedly fine-tuning a model when organizational data changes frequently?",
+    "relevant_chunk_ids": [
+      "ebcc481e-771f-57de-958d-3e5878ef89dd"
+    ],
+    "reference_answer": "The speaker explains that organizational policies and data keep changing, so repeatedly fine-tuning the model is impractical. RAG is presented as an alternative."
+  },
+  {
+    "question_id": "q8",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "What are the two major pipelines in a traditional RAG architecture?",
+    "relevant_chunk_ids": [
+      "c49f9ba6-d4a1-5ac0-b787-7bed7c1e938f",
+      "bf968e07-3f95-5143-93e4-f40253d324fa"
+    ],
+    "reference_answer": "The two major pipelines are the data ingestion pipeline and the retrieval pipeline. The first prepares and stores information, while the second retrieves relevant information for answering user queries."
+  },
+  {
+    "question_id": "q9",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "What are the main stages of the data ingestion pipeline?",
+    "relevant_chunk_ids": [
+      "40df3c62-21b4-509c-b408-3f6815c3ef87",
+      "7428e748-cdea-5582-ba73-c52a0cf4a1a2"
+    ],
+    "reference_answer": "The data ingestion pipeline involves data injection, document parsing, chunking, generating embeddings, and storing the resulting vectors in a vector store."
+  },
+  {
+    "question_id": "q10",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "What types of data sources or file formats can be used in a RAG ingestion pipeline?",
+    "relevant_chunk_ids": [
+      "40df3c62-21b4-509c-b408-3f6815c3ef87",
+      "c13860d5-4f9e-57fc-a921-1824b2479256"
+    ],
+    "reference_answer": "The video mentions PDF, HTML, Excel files, and SQL databases as possible data sources. These sources can be parsed and converted into documents for further processing."
+  },
+  {
+    "question_id": "q11",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "Why are document parsing and chunking performed before storing data in a vector database?",
+    "relevant_chunk_ids": [
+      "7428e748-cdea-5582-ba73-c52a0cf4a1a2"
+    ],
+    "reference_answer": "Document parsing prepares source data for processing, while chunking divides it into smaller sections that can be represented as embeddings and stored in a vector store. The video also introduces different chunking strategies and optimization."
+  },
+  {
+    "question_id": "q12",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "What are embeddings, and why are they generated during data ingestion?",
+    "relevant_chunk_ids": [
+      "81f0ada0-64f3-52d5-939b-d6e19493433b",
+      "a5bc3419-f6ab-5d1c-911d-5dc4e755683b"
+    ],
+    "reference_answer": "Embeddings are vector representations of information generated using embedding models. They allow information to be stored in a vector database and compared with query embeddings during similarity search."
+  },
+  {
+    "question_id": "q13",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "How does a RAG system retrieve relevant information using a user's query?",
+    "relevant_chunk_ids": [
+      "8ffc5db4-405f-5c16-8402-2f6203c22f28",
+      "a5c81a58-317c-5638-bb04-38a5232ae0b2"
+    ],
+    "reference_answer": "The user's query is converted into an embedding. The system performs similarity search against stored vectors, retrieves relevant information, and passes that information as context to the LLM."
+  },
+  {
+    "question_id": "q14",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "What do retrieval, augmentation, and generation mean in a RAG workflow?",
+    "relevant_chunk_ids": [
+      "3f347763-7135-5bd9-a6ca-88b5a234eab0"
+    ],
+    "reference_answer": "Retrieval means finding relevant information from the knowledge base. Augmentation means supplying that retrieved context alongside the prompt to the LLM. Generation is the final step in which the LLM produces the output."
+  },
+  {
+    "question_id": "q15",
+    "chat_id": "5dd1481c-9211-47c0-851d-af516d6e8b1a",
+    "video_id": "14d55b3a-b145-42e8-8d5e-0485bfffb348",
+    "question": "Does RAG completely eliminate hallucinations? Explain why or why not.",
+    "relevant_chunk_ids": [
+      "5b38f71c-65dc-52f3-b04c-8d0a32d682f1"
+    ],
+    "reference_answer": "No. RAG can reduce hallucinations by providing relevant external context, but it cannot eliminate them completely. If the required information is missing from the vector database or is not retrieved, the LLM may still hallucinate."
+  }
+]

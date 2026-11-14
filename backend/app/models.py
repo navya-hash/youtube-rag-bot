@@ -3,6 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
+
 from sqlalchemy import (
     CheckConstraint,
     DateTime,
@@ -13,6 +14,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     Uuid,
+    Integer,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -63,7 +65,16 @@ class Video(Base):
     status: Mapped[str] = mapped_column(
         String(24), default="pending", nullable=False
     )
+
+    content_version: Mapped[int] = mapped_column(
+    Integer,
+    nullable=False,
+    default=1,
+    server_default="1",
+)
+
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, nullable=False
     )

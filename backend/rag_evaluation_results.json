@@ -1,0 +1,255 @@
+{
+    "total_samples": 12,
+    "successful_samples": 12,
+    "successful_generation_samples": 11,
+    "top_k": 5,
+    "average_metrics": {
+        "precision_at_k": 0.09999999999999999,
+        "recall_at_k": 0.15555555555555556,
+        "faithfulness": 0.7926734881280336,
+        "answer_relevance": 0.8118181818181818,
+        "answer_correctness": 0.45454545454545453
+    },
+    "results": [
+        {
+            "question_id": "q1",
+            "question": "What is RAG and why is it used?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+                "fffd39be-4e98-5583-ae6b-c801ec771723",
+                "32a25a92-bb4d-5749-9828-2754d1a1020b",
+                "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc",
+                "44a07842-0924-5bf0-b183-67a809de53ff"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.3333333333333333,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.8,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.95,
+            "generated_answer": "**RAG (Retrieval‑Augmented Generation)**  \n\nRAG is a technique that combines two stages – **retrieval** of relevant information and **generation** of a response – into a single pipeline for large language models (LLMs). In the videos the authors describe it as **“Retrieval‑Augmented Generation”** (see the segment around 619 – 671 seconds where they say “this is why RAGs are called Retrieval‑Augmented Generation”).\n\n### How RAG works (the pipeline)\n\n1. **Embedding & Retrieval** –  \n   *The query is turned into an embedding* (using the same embedding API that was used at injection time).  \n   *Based on that embedding, a similarity/semantic search is performed in a vector database* to pull the most relevant documents (Source 2, 543 – 591 s).\n\n2. **Context creation (augmentation)** –  \n   The retrieved documents are treated as **context**. The original user query and this context are combined into a single prompt that is fed to the LLM (Source 1, 581 – 632 s).\n\n3. **Generation** –  \n   The LLM generates an answer using the augmented prompt. The answer is then returned to the user (Source 1 & 3, 581 – 632 s; 619 – 671 s).\n\n### Why RAG is used\n\n- **Brings external knowledge into the model** – The LLM alone only knows what was in its training data. By retrieving up‑to‑date or domain‑specific documents, RAG can answer questions that require facts not stored in the model (e.g., “cardiac arrest” documents for a heart‑attack query, Source 2).\n\n- **Improves answer relevance and accuracy** – The retrieved context narrows the model’s focus to the most pertinent information, leading to more precise responses.\n\n- **Handles complex or multi‑part queries** – For questions that need several pieces of information (e.g., “price‑hack of gold in 2025 and compare with other metals”), RAG can break the query into multiple retrievals and then synthesize a coherent answer (Source 4).\n\n- **Supports conversational memory** – Some RAG architectures add a separate memory layer that stores past conversation snippets, allowing the system to maintain context over a dialogue (Source 5). This is especially useful for support assistants and chatbots.\n\nIn short, RAG is a **retrieval‑augmented generation** framework that first fetches relevant documents, augments the original query with that information, and then lets the LLM generate a well‑grounded answer. It is employed to make LLM responses more factual, up‑to‑date, and capable of handling sophisticated queries."
+        },
+        {
+            "question_id": "q2",
+            "question": "How does RAG make LLM responses more context-aware?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "97ddd60d-4440-53a9-b077-0a85c381e402",
+                "b898d75b-775f-544d-9c27-0554e293ad93",
+                "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+                "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc",
+                "ebbf3f0d-5647-50ef-801a-2e845163021f"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.3333333333333333,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.9090909090909091,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.95,
+            "generated_answer": "Retrieval‑Augmented Generation (RAG) makes a large language model (LLM) more **context‑aware** by inserting up‑to‑date, relevant information into the model’s prompt before it generates an answer.  \nThe transcripts describe the process in three concrete stages:\n\n1. **Real‑time retrieval** – The LLM is allowed to query a live, up‑to‑date database (or knowledge base) that contains the information needed for the current question. Because the model can fetch the latest records, the answers it produces are more accurate, current and “context‑aware” (Source 1, 145.84‑191.68 s).  \n\n2. **Extraction of the retrieved information as “context”** – The documents returned by the retrieval step are parsed and the most relevant pieces are extracted. This extracted snippet is called the *context* (Source 3, 581.12‑632.80 s).  \n\n3. **Prompt augmentation** – Instead of sending the user’s raw query alone to the LLM, the system builds a **augmented prompt** that contains two parts:  \n   * the original user query, and  \n   * the retrieved context.  \n   This combined prompt is then fed to the LLM (Source 3, 581.12‑632.80 s).  \n\n4. **Generation** – The LLM uses the enriched prompt to generate its answer, which now reflects the specific, up‑to‑date facts it was given (Source 3, 581.12‑632.80 s).\n\nBecause the model’s answer is conditioned on freshly retrieved, semantically relevant data, the response is:\n\n* **More accurate** – it is grounded in real information rather than relying solely on the model’s internal knowledge.  \n* **More up‑to‑date** – the database can contain the latest facts (e.g., a delayed flight status).  \n* **More context‑aware** – the model knows the exact situation (the specific flight, medical record, etc.) that the user is asking about.\n\nIn short, RAG improves context awareness by **retrieving relevant external knowledge, turning that knowledge into a context block, and augmenting the original query with this block before generation**. This pipeline ensures that the LLM’s response is tailored to the precise, current context of the user’s question."
+        },
+        {
+            "question_id": "q3",
+            "question": "How does RAG help reduce hallucinations?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+                "6ba2c37f-80c0-5c3a-a543-6de0f133203e",
+                "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc",
+                "fcc7b772-73b8-5d2a-9993-d4d7daedc249",
+                "fffd39be-4e98-5583-ae6b-c801ec771723"
+            ],
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.6,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.95,
+            "generated_answer": "RAG (Retrieval‑Augmented Generation) reduces hallucinations by grounding the language model’s output in real, retrieved documents instead of letting the model generate freely from its internal knowledge alone.\n\n1. **Retrieval of relevant facts** – After the user’s query is embedded, the system searches a vector database for documents that contain the *particular relevant information* (e.g., “cardiac arrest” documents for a heart‑attack query). These retrieved passages are the **context** that will be fed to the model【Source 5, 543.5‑591.9 seconds】.  \n\n2. **Prompt augmentation** – The original query and the retrieved context are combined into a single prompt. This “augmentation” step means the model sees the exact pieces of evidence it should base its answer on, rather than having to rely on its own (sometimes noisy) knowledge【Source 1, 581.1‑632.8 seconds】.  \n\n3. **Pre‑answer analysis** – Because the model can compare its generated response with the retrieved documents before returning it, the architecture can *improve the response by analyzing it beforehand*. This extra check helps catch and correct content that would otherwise be a hallucination【Source 2, 988.1‑1032.2 seconds】.  \n\n4. **Resulting generation** – Finally, the LLM generates an answer that is directly tied to the retrieved evidence, and this answer is returned to the user【Source 1, 581.1‑632.8 seconds】. Since the answer is anchored in verified documents, the likelihood of fabricating unsupported facts (hallucinations) is markedly lower.\n\nIn short, RAG reduces hallucinations by (a) pulling factual, domain‑specific information from a trusted database, (b) feeding that information to the model as part of the prompt, and (c) allowing a pre‑generation check against the retrieved evidence, ensuring the final output stays faithful to real data."
+        },
+        {
+            "question_id": "q4",
+            "question": "What are the main benefits of RAG?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+                "32a25a92-bb4d-5749-9828-2754d1a1020b",
+                "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc",
+                "44a07842-0924-5bf0-b183-67a809de53ff",
+                "afbd2eb7-8cae-5c10-9650-f617b2697573"
+            ],
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.8333333333333334,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.45,
+            "generated_answer": "**Main benefits of Retrieval‑Augmented Generation (RAG)**  \n\nBased on the video transcript, RAG brings several practical advantages over using a plain language model:\n\n| Benefit | What the transcript says |\n|---------|---------------------------|\n| **1. Access to up‑to‑date, relevant information** | After a user query the system first **retrieves** the most relevant pieces of knowledge from a database (the “context”) and adds that context to the prompt before the LLM generates an answer【Source 1, 581‑632】. This lets the model answer questions with facts that are not stored in its parameters. |\n| **2. More accurate and grounded generation** | Because generation is **retrieval‑augmented** (retrieval → augmentation → generation) the answer is built on concrete retrieved documents rather than on the model’s internal memorization alone【Source 2, 619‑671】. |\n| **3. Ability to handle complex, multi‑part queries** | For queries that require several pieces of information (e.g., “explain the price‑hack of gold in 2025 and compare it with other metals”) the system can **break the query into multiple sub‑queries**, perform several retrievals, and then combine the results【Source 3, 877‑927】. |\n| **4. Memory of past conversation** | A “memory‑augmented” RAG variant keeps a **separate memory layer** that stores conversation history, allowing the system to remember earlier turns and provide consistent, context‑aware responses—useful for support assistants and chatbots【Source 4, 804‑852】. |\n| **5. Preservation of relationships across documents** | The **graph‑RAG** architecture treats retrieved chunks as nodes in a graph, preserving relationships among different documents, images, videos, etc. This is especially valuable in domains like medical imaging, surveillance, and security where cross‑document links matter【Source 5, 952‑996】. |\n| **6. Self‑reflection and answer improvement** | The **self‑reflective RAG** first generates a “draft” response, then critiques and refines it before delivering the final answer. This internal review step can improve answer quality and correctness【Source 5, 952‑996】. |\n\n**In short**, RAG’s main benefits are:\n\n1. **Combining external knowledge retrieval with LLM generation** for up‑to‑date, fact‑grounded answers.  \n2. **Handling multi‑step or multi‑aspect questions** by performing several targeted retrievals.  \n3. **Maintaining conversational context** through a dedicated memory layer.  \n4. **Preserving inter‑document relationships** via graph‑based structures, which is crucial in specialized fields.  \n5. **Improving answer quality** through a draft‑then‑critique (self‑reflective) process.  \n\nThese advantages make RAG a powerful architecture for building more reliable, knowledgeable, and context‑aware AI assistants."
+        },
+        {
+            "question_id": "q5",
+            "question": "What are the two main stages of the RAG pipeline?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc",
+                "32a25a92-bb4d-5749-9828-2754d1a1020b",
+                "fcc7b772-73b8-5d2a-9993-d4d7daedc249",
+                "65aa1f9f-505a-5e02-90f0-a432504f15de",
+                "155776ce-c693-54f4-8691-f94a2af58d19"
+            ],
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.75,
+            "answer_relevance": 0.98,
+            "answer_correctness": 0.1,
+            "generated_answer": "The RAG (Retrieval‑Augmented Generation) pipeline consists of **two distinct stages**:\n\n1. **Retrieval** – The system first searches a knowledge source (e.g., a vector database, web search, APIs, etc.) to pull relevant pieces of information that are related to the user’s query.  \n2. **Generation** – After the relevant documents have been retrieved, the original query is **augmented** with that retrieved context, and a large language model (LLM) generates the final answer for the user.\n\nThe transcript explains this explicitly: “RAGs are called **retrieval‑augmented generation**… first retrieval happens and then we augment our original query… that’s why the generation is retrieval‑augmented generation in RAGs” (Source 2, 619.839‑671.44 seconds).  \n\nThus, the two main stages of a RAG pipeline are **retrieval** followed by **generation**."
+        },
+        {
+            "question_id": "q6",
+            "question": "Explain the data ingestion pipeline.",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc",
+                "b898d75b-775f-544d-9c27-0554e293ad93",
+                "fcc7b772-73b8-5d2a-9993-d4d7daedc249",
+                "65aa1f9f-505a-5e02-90f0-a432504f15de",
+                "75a99fd2-a1bf-5648-8e1f-6b7fcfd59e28"
+            ],
+            "precision_at_k": 0.2,
+            "recall_at_k": 0.2,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.5555555555555556,
+            "answer_relevance": 0.95,
+            "answer_correctness": 0.55,
+            "generated_answer": "**Data‑ingestion (RAG) pipeline – how it works according to the video**\n\nThe video explains the pipeline that powers a Retrieval‑Augmented Generation (RAG) system.  \nThe main idea is that the model never reads the whole database; it only pulls the pieces that are relevant to the current query. This keeps sensitive enterprise data private while still allowing the model to answer complex, multi‑step questions.\n\nBelow is a step‑by‑step description that follows the information given in the transcripts (see Source 5 ≈ 325‑370 s, Source 3 ≈ 915‑962 s, and Source 4 ≈ 35‑80 s).\n\n| Step | What happens | Why it matters |\n|------|--------------|----------------|\n| **1. Data storage & preprocessing** | Raw data (text, documents, images, video, audio, etc.) is first collected and split into manageable chunks. Each chunk is turned into a vector embedding using an encoder model. The embeddings are stored in a **vector database** that supports semantic (meaning‑based) search. | The vector store enables fast similarity lookup, which is essential for “semantic search” rather than simple keyword matching (as described in Source 2). |\n| **2. Indexing** | The embeddings are indexed so that a query can be matched against the most similar vectors quickly. | Indexing makes the retrieval step efficient even when the corpus is large. |\n| **3. Query reception** | A user sends a"
+        },
+        {
+            "question_id": "q7",
+            "question": "How does the retrieval and generation process work?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+                "97ddd60d-4440-53a9-b077-0a85c381e402",
+                "32a25a92-bb4d-5749-9828-2754d1a1020b",
+                "b898d75b-775f-544d-9c27-0554e293ad93",
+                "fffd39be-4e98-5583-ae6b-c801ec771723"
+            ],
+            "precision_at_k": 0.6,
+            "recall_at_k": 1.0,
+            "generation_status": "failed",
+            "generation_error": "Evaluation model returned an empty response.",
+            "faithfulness": null,
+            "answer_relevance": null,
+            "answer_correctness": null,
+            "generated_answer": "The system described in the video follows a **retrieval‑augmented generation (RAG)** pipeline that consists of two main phases – **retrieval** and **generation** – plus a few supporting steps. Here’s how each phase works, based on the transcript:\n\n---\n\n### 1. Preparing the context (pre‑retrieval)\n\n1. **Extract relevant information from a database**  \n   *The database is queried and only the pieces of information that are likely to be useful are pulled out.*  \n   (Source 1 – 581 s‑632 s)\n\n2. **Create a “context”**  \n   The extracted snippets become the *context* that will later be given to the language model.  \n   (Source 1 – 581 s‑632 s)\n\n---\n\n### 2. Retrieval phase\n\n1. **Embedding the query**  \n   When a user asks a question, the query is turned into an embedding using the same embedding API that was used when the documents were first indexed.  \n   (Source 5 – 543 s‑591 s)\n\n2. **Searching the vector database**  \n   *Semantic (meaning‑based) search* is performed in a vector database. The query embedding is compared with the stored document embeddings, and the most similar documents are returned.  \n   (Source 5 – 543 s‑591 s; Source 4 – 468 s‑516 s)\n\n3. **Ranking and extracting the top documents**  \n   All documents that match the query semantically are ranked; the highest‑ranked ones are taken as the retrieved context.  \n   (Source 5 – 543 s‑591 s)\n\n4. **Result of retrieval**  \n   At the end of this step we have a set of relevant documents (e.g., “cardiac arrest” documents when the query is about “heart‑attack symptoms”).  \n   (Source 5 – 543 s‑591 s)\n\n---\n\n### 3. Augmentation (building the prompt)\n\n1. **Combine the original query with the retrieved context**  \n   Instead of sending only the raw question to the LLM, the system creates a prompt that contains two parts:  \n   * the **original user query**, and  \n   * the **retrieved context** obtained in the previous step.  \n   (Source 1 – 581 s‑632 s)\n\n2. **This combined prompt is called “augmentation.”**  \n   It enriches the model’s input with up‑to‑date, domain‑specific information, making the downstream answer more accurate and context‑aware.  \n   (Source 1 – 581 s‑632 s; Source 2 – 145 s‑191 s)\n\n---\n\n### 4. Generation phase\n\n1. **Pass the augmented prompt to the LLM**  \n   The language model receives the full prompt (original question + retrieved context) and generates an answer.  \n   (Source 1 – 581 s‑632 s; Source 3 – 619 s‑671 s)\n\n2. **Return the answer to the user**  \n   The generated response is sent back as the final output.  \n   (Source 1 – 581 s‑632 s; Source 3 – 619 s‑671 s)\n\n---\n\n### 5. Technical pieces that enable the pipeline (mentioned in the video)\n\n| Component | Role |\n|-----------|------|\n| **Chunking strategy** – how documents are split before embedding | Source 3 – 619 s‑671 s |\n| **Embedding model** – creates vector representations of both documents and queries | Source 3 – 619 s‑671 s |\n| **Vector database** – stores the embeddings and supports semantic search | Source 3 – 619 s‑671 s; Source 4 – 468 s‑516 s |\n\n---\n\n### Summary of the workflow\n\n1. **Extract** relevant pieces from a (real‑time) database → **context**.  \n2. **Embed** the user query and **search** a vector database → **retrieved documents**.  \n3. **Augment**"
+        },
+        {
+            "question_id": "q8",
+            "question": "What is the difference between fixed-size and semantic chunking?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "32a25a92-bb4d-5749-9828-2754d1a1020b",
+                "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+                "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc",
+                "b898d75b-775f-544d-9c27-0554e293ad93",
+                "fffd39be-4e98-5583-ae6b-c801ec771723"
+            ],
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 1.0,
+            "answer_relevance": 0.25,
+            "answer_correctness": 0.05,
+            "generated_answer": "Based on the transcript you provided, the speaker talks about **chunking strategies** as one of the three key components when building a retrieval‑augmented generation pipeline. They say:\n\n* “There are a lot of different types of chunking. **First is called fixed** …” (Source 1, 619.8‑671.4 s)\n\nThis tells us that **fixed‑size chunking** is one of the possible strategies, but the transcript does not give any further description of how it works, nor does it define **semantic chunking** or compare the two approaches.\n\nTherefore, from the available transcript we can only state that:\n\n1. **Fixed‑size chunking** is mentioned as a specific chunking method.\n2. **Semantic chunking** is not described in the provided excerpts, so the transcript does not contain enough information to explain how it differs from fixed‑size chunking.\n\nIf you need a detailed comparison (e.g., how fixed‑size splits text into equal‑length pieces versus how semantic chunking groups text by meaning), that information is not present in the given transcript."
+        },
+        {
+            "question_id": "q9",
+            "question": "How does Hybrid RAG differ from Standard RAG?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc",
+                "32a25a92-bb4d-5749-9828-2754d1a1020b",
+                "65aa1f9f-505a-5e02-90f0-a432504f15de",
+                "ebbf3f0d-5647-50ef-801a-2e845163021f",
+                "75a99fd2-a1bf-5648-8e1f-6b7fcfd59e28"
+            ],
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 1.0,
+            "answer_relevance": 0.85,
+            "answer_correctness": 0.0,
+            "generated_answer": "The transcripts you provided discuss Retrieval‑Augmented Generation (RAG) in general—explaining how a retrieval step is followed by a generation step, the importance of chunking strategies, embedding models, and vector databases, and how the pipeline can handle complex, multi‑part user queries. However, none of the excerpts mention a “Hybrid RAG” architecture or describe how it differs from a “Standard RAG” setup.\n\nBecause the source material does not contain any information about a Hybrid RAG variant, I can’t give a detailed comparison based on the provided context. If you have a different segment of the video that specifically talks about Hybrid RAG, feel free to share it, and I’ll be happy to explain the differences."
+        },
+        {
+            "question_id": "q10",
+            "question": "How does RAG with memory work?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+                "b898d75b-775f-544d-9c27-0554e293ad93",
+                "65aa1f9f-505a-5e02-90f0-a432504f15de",
+                "fcc7b772-73b8-5d2a-9993-d4d7daedc249",
+                "2f53d9c3-2b19-5954-a3f7-6174af9ef4fc"
+            ],
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.7,
+            "answer_relevance": 0.96,
+            "answer_correctness": 0.8,
+            "generated_answer": "**RAG (Retrieval‑Augmented Generation) with memory works by stitching together a retrieval step and a generation step so that the language model can answer a user’s question using up‑to‑date, relevant information that it “remembers” from an external source.**  \n\nThe transcript (see **581 – 632 s**) outlines the three‑stage pipeline that makes this possible:\n\n1. **Retrieval (building the *context*)**  \n   * The system first queries a database (or a vector database for semantic search, as described at **468 – 516 s**) and extracts the pieces of information that are most relevant to the user’s query.  \n   * This extracted information is called the **context**. It can come from keyword‑based search or, more powerfully, from semantic search that matches meaning rather than exact words.\n\n2. **Augmentation (creating the prompt)**  \n   * Instead of sending the raw user question directly to the LLM, the pipeline **augments** the query by appending the retrieved context to it.  \n   * The prompt therefore has two parts:  \n     * the original user query, and  \n     * the retrieved context that was just gathered.  \n   * This combined prompt is what is fed to the language model.\n\n3. **Generation (producing the answer)**  \n   * The LLM processes the augmented prompt and **generates** a response that draws on both the user’s question and the retrieved context.  \n   * The answer is then returned to the user.\n\n**Where does “memory” fit in?**  \nWhile the word *memory* is not explicitly used in the transcript, the **retrieved context** functions as a short‑term memory for the model. By pulling in relevant documents (or semantic embeddings) and attaching them to the prompt, the system gives the LLM access to information that it would not otherwise retain on its own. In more advanced setups, the same retrieved pieces can be cached and reused across multiple turns of a conversation, allowing the model to “remember” earlier facts while answering new questions.\n\n**Key points to remember**\n\n| Step | What happens | Why it matters for memory |\n|------|--------------|---------------------------|\n| **Retrieval** | Search a (keyword or vector) database for relevant documents. | Provides the factual “memory” that the model can draw on. |\n| **Augmentation** | Combine the original query with the retrieved context into a single prompt. | Embeds the memory directly into the prompt the model sees. |\n| **Generation** | LLM generates an answer using both the query and the embedded context. | The answer reflects the stored memory rather than relying solely on the model’s internal parameters. |\n\nIn summary, RAG with memory works by **retrieving relevant information, attaching it to the user’s question, and then letting the language model generate a response that leverages that attached information**. This makes the system capable of answering questions with up‑to‑date, domain‑specific knowledge that the model itself does not inherently possess."
+        },
+        {
+            "question_id": "q11",
+            "question": "What is Graph RAG and when is it useful?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "97ddd60d-4440-53a9-b077-0a85c381e402",
+                "6ba2c37f-80c0-5c3a-a543-6de0f133203e",
+                "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+                "ebbf3f0d-5647-50ef-801a-2e845163021f",
+                "afbd2eb7-8cae-5c10-9650-f617b2697573"
+            ],
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 1.0,
+            "answer_relevance": 0.15,
+            "answer_correctness": 0.0,
+            "generated_answer": "Based on the transcripts you provided, the speakers discuss **RAG (Retrieval‑Augmented Generation)** in general—how it lets a language model retrieve up‑to‑date, relevant information from a database, combine that context with the original query (the “augmentation” step), and then generate a more accurate, current, and context‑aware answer. They also mention that there are several variants of RAG architectures for different industries and regulatory environments.\n\nHowever, none of the excerpts contain a specific explanation of **“Graph RAG”** or describe the situations in which a graph‑based RAG approach would be advantageous. Because the term does not appear in the supplied transcript, I cannot give a definition or use‑case that is directly grounded in this material. If you have a different segment of the video that mentions Graph RAG, feel free to share it, and I’ll be happy to explain it based on that content."
+        },
+        {
+            "question_id": "q12",
+            "question": "How does Agentic RAG work?",
+            "retrieved_chunks": 5,
+            "retrieved_chunk_ids": [
+                "17b29b45-cfa0-5404-8490-72d0bd4234e8",
+                "97ddd60d-4440-53a9-b077-0a85c381e402",
+                "afbd2eb7-8cae-5c10-9650-f617b2697573",
+                "fffd39be-4e98-5583-ae6b-c801ec771723",
+                "0721630f-ceba-5a77-8192-ca806cf9f690"
+            ],
+            "precision_at_k": 0.0,
+            "recall_at_k": 0.0,
+            "generation_status": "success",
+            "generation_error": null,
+            "faithfulness": 0.5714285714285714,
+            "answer_relevance": 0.95,
+            "answer_correctness": 0.2,
+            "generated_answer": "**Agentic RAG** is an “agent‑driven” version of the Retrieval‑Augmented Generation (RAG) pipeline.  \nAccording to the video transcript, the agent orchestrates a series of well‑defined steps that let a large language model (LLM) answer a user query with up‑to‑date, context‑aware information.\n\nBelow is a step‑by‑step description of how the agent works, with the timestamps where each part is explained in the video:\n\n| Step | What the agent does | Transcript evidence |\n|------|---------------------|----------------------|\n| **1. Ingestion (or “injection”)** | The agent first gathers all the raw data that the model may need – PDFs, plain‑text documents, Excel files, whole websites, or an internal company database. This data is then turned into embeddings using the same embedding API that was used at “injection time.” | *“सबसे पहले इंजेशन पाइपलाइन के बारे में बात करते हैं… हम अपने स्टूडेंट के लिए अपनी ओपन बुक को प्रिपेयर करने वाले हैं… सबसे पहले वी गेट ऑल द डेटा… It could be PDF, simple documents, Excel files, an entire website, or the whole company’s internal database.”* (Source 5, 360.88‑408.08 s) |\n| **2. Retrieval** | When a user asks a question, the agent creates an embedding of the query and searches a **vector database** for the most similar documents. It uses semantic (similarity) search to pull out the most relevant pieces of information (e.g., documents about “cardiac arrest” if the query mentions heart‑attack symptoms). | *“Based on the query embedding, we match and search documents in our vector database… we will extract cardiac arrest or similar documents… All ranked documents come to us.”* (Source 4, 543.52‑591.92 s) |\n| **3. Context construction (augmentation)** | The retrieved snippets become the **context**. The agent builds a full prompt that contains two parts: the original user query **plus** the extracted context. This “augmented” prompt is then sent to the LLM. | *“Instead of a simple query we pass an entire prompt… The prompt has two parts: the original query and the context we just got… Then we pass it to the LLM.”* (Source 1, 581.12‑632.80 s) |\n| **4. Generation** | The LLM generates an answer based on the augmented prompt and returns it to the user. | *“The final step is called generation – the LLM finally generates an answer and we return this answer to the user.”* (Source 1, 581.12‑632."
+        }
+    ]
+}

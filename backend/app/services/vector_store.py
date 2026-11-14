@@ -25,47 +25,52 @@ def get_qdrant_client() -> QdrantClient:
         timeout=30,
     )
 
-def ensure_payload_indexes() -> None:
+def ensure_payload_indexes(collection_name: str | None = None) -> None:
     """
     Create payload indexes required for secure filtered searches.
     """
     settings = get_settings()
     client = get_qdrant_client()
+    target_collection = collection_name or settings.qdrant_collection_name
 
     for field_name in ("owner_id", "video_id"):
         client.create_payload_index(
-            collection_name=settings.qdrant_collection_name,
+            collection_name=target_collection,
             field_name=field_name,
             field_schema=models.PayloadSchemaType.KEYWORD,
             wait=True,
         )
 
-def ensure_collection(vector_size: int = 384) -> None:
+def ensure_collection(
+    vector_size: int | None = None,
+    collection_name: str | None = None,
+) -> None:
     settings = get_settings()
     client = get_qdrant_client()
-    collection_name = settings.qdrant_collection_name
+    target_collection = collection_name or settings.qdrant_collection_name
+    target_size = vector_size if vector_size is not None else settings.embedding_dimension
 
-    if client.collection_exists(collection_name):
-        info = client.get_collection(collection_name)
+    if client.collection_exists(target_collection):
+        info = client.get_collection(target_collection)
         existing_size = info.config.params.vectors.size
 
-        if existing_size != vector_size:
+        if existing_size != target_size:
             raise RuntimeError(
-                f"Collection '{collection_name}' uses vector size "
+                f"Collection '{target_collection}' uses vector size "
                 f"{existing_size}, but the embedding model produces "
-                f"{vector_size}. Use a new collection or migrate it."
+                f"{target_size}. Use a new collection or migrate it."
             )
     else:
         client.create_collection(
-            collection_name=collection_name,
+            collection_name=target_collection,
             vectors_config=models.VectorParams(
-                size=vector_size,
+                size=target_size,
                 distance=models.Distance.COSINE,
             ),
         )
 
     # Create indexes for filtered retrieval.
-    ensure_payload_indexes()
+    ensure_payload_indexes(collection_name=target_collection)
 
 
 
@@ -183,7 +188,87 @@ def delete_video_chunks(
         raise RuntimeError(
             "Unable to delete existing video chunks."
         ) from exc
-        
+
+
+def delete_obsolete_video_chunks(
+    owner_id: UUID,
+    video_id: UUID,
+    keep_chunk_ids: list[str],
+) -> int:
+    """
+    Delete obsolete transcript chunks while preserving
+    the newly uploaded chunk IDs for this video and owner.
+    """
+
+    settings = get_settings()
+    client = get_qdrant_client()
+
+    scroll_filter = models.Filter(
+        must=[
+            models.FieldCondition(
+                key="owner_id",
+                match=models.MatchValue(value=str(owner_id)),
+            ),
+            models.FieldCondition(
+                key="video_id",
+                match=models.MatchValue(value=str(video_id)),
+            ),
+        ]
+    )
+
+    keep_ids = {str(chunk_id) for chunk_id in keep_chunk_ids}
+    obsolete_ids = []
+    offset = None
+
+    try:
+        # Find every existing chunk belonging to this video.
+        while True:
+            points, next_offset = client.scroll(
+                collection_name=settings.qdrant_collection_name,
+                scroll_filter=scroll_filter,
+                limit=256,
+                offset=offset,
+                with_payload=False,
+                with_vectors=False,
+            )
+
+            for point in points:
+                if str(point.id) not in keep_ids:
+                    obsolete_ids.append(point.id)
+
+            if next_offset is None:
+                break
+
+            offset = next_offset
+
+        # Delete obsolete points in batches.
+        for start in range(0, len(obsolete_ids), 1000):
+            batch = obsolete_ids[start:start + 1000]
+
+            client.delete(
+                collection_name=settings.qdrant_collection_name,
+                points_selector=models.PointIdsList(
+                    points=batch,
+                ),
+                wait=True,
+            )
+
+        logger.info(
+            "Deleted %d obsolete chunks for video_id=%s.",
+            len(obsolete_ids),
+            video_id,
+        )
+
+        return len(obsolete_ids)
+
+    except Exception as exc:
+        logger.exception(
+            "Failed to delete obsolete chunks for video_id=%s.",
+            video_id,
+        )
+        raise RuntimeError(
+            "Unable to remove obsolete transcript chunks."
+        ) from exc  
 
 def search_chunks(
     query_vector: list[float],
@@ -230,12 +315,13 @@ def search_chunks(
     )
 
     return [
-        {
-            "score": point.score,
-            **(point.payload or {}),
-        }
-        for point in response.points
-    ]
+    {
+        "chunk_id": str(point.id),
+        "score": point.score,
+        **(point.payload or {}),
+    }
+    for point in response.points
+]
 
 
 # get_all_video_chunks() bridges our Qdrant vector database and summarization pipeline by securely retrieving every transcript chunk of a selected video in chronological order.
