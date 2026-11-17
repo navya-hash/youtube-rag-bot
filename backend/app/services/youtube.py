@@ -8,7 +8,10 @@ from app.services.transcript_errors import TranscriptIngestionError
 import logging
 
 from app.services.audio_transcription import transcribe_youtube_audio
+import time
+import httpx
 
+from app.core.config import get_settings
 
 
 logger = logging.getLogger(__name__)
@@ -175,17 +178,198 @@ def fetch_transcript(
 
 
 
+def fetch_transcript_from_supadata(
+    video_id: str,
+    language: str = "en",
+) -> dict:
+    """Fetch and normalize a YouTube transcript using Supadata."""
+
+    settings = get_settings()
+    api_key = settings.supadata_api_key
+
+    if not api_key:
+        raise TranscriptIngestionError(
+            "Supadata API key is not configured.",
+            "supadata_not_configured",
+            503,
+        )
+
+    url = f"https://www.youtube.com/watch?v={video_id}"
+
+    headers = {
+        "x-api-key": api_key,
+        "Accept": "application/json",
+    }
+
+    params = {
+        "url": url,
+        "lang": language,
+        "mode": "auto",
+        "text": "false",
+    }
+
+    try:
+        with httpx.Client(timeout=30.0) as client:
+            response = client.get(
+                "https://api.supadata.ai/v1/transcript",
+                headers=headers,
+                params=params,
+            )
+            response.raise_for_status()
+            result = response.json()
+
+            # Long videos may return a job ID instead
+            # of the transcript immediately.
+            job_id = result.get("jobId")
+
+            if job_id:
+                for attempt in range(45):
+                    time.sleep(2)
+
+                    job_response = client.get(
+                        f"https://api.supadata.ai/v1/transcript/{job_id}",
+                        headers=headers,
+                    )
+                    job_response.raise_for_status()
+
+                    result = job_response.json()
+                    status = result.get("status")
+
+                    if status == "completed":
+                        result = (
+                            result.get("result")
+                            or result.get("data")
+                            or result
+                        )
+                        break
+
+                    if status == "failed":
+                        raise TranscriptIngestionError(
+                            "Supadata could not process this video.",
+                            "supadata_job_failed",
+                            502,
+                        )
+
+                else:
+                    raise TranscriptIngestionError(
+                        "Supadata transcript processing timed out.",
+                        "supadata_timeout",
+                        504,
+                    )
+
+            # Handle the transcript response.
+            content = result.get("content")
+            transcript_language = result.get("lang", language)
+
+            if isinstance(content, str):
+                content = [{
+                    "text": content,
+                    "offset": 0,
+                    "duration": 0,
+                }]
+
+            if not isinstance(content, list) or not content:
+                raise TranscriptIngestionError(
+                    "Supadata returned an empty transcript.",
+                    "empty_transcript",
+                    422,
+                )
+
+            segments = []
+
+            for item in content:
+                text = item.get("text", "").strip()
+
+                if not text:
+                    continue
+
+                segments.append({
+                    "text": text,
+                    "start": float(item.get("offset", 0)) / 1000,
+                    "duration": float(item.get("duration", 0)) / 1000,
+                })
+
+            if not segments:
+                raise TranscriptIngestionError(
+                    "Supadata returned no usable transcript segments.",
+                    "empty_transcript",
+                    422,
+                )
+
+            logger.info(
+                "Supadata transcript retrieved for video %s. "
+                "Language: %s, segments: %s",
+                video_id,
+                transcript_language,
+                len(segments),
+            )
+
+            return {
+                "language": transcript_language,
+                "is_generated": None,
+                "segments": segments,
+            }
+
+    except TranscriptIngestionError:
+        raise
+
+    except httpx.HTTPStatusError as exc:
+        logger.exception(
+            "Supadata HTTP error for video %s: %s",
+            video_id,
+            exc.response.status_code,
+        )
+        raise TranscriptIngestionError(
+            "Supadata could not retrieve this video's transcript.",
+            "supadata_api_error",
+            502,
+        ) from exc
+
+    except (httpx.RequestError, ValueError, KeyError) as exc:
+        logger.exception(
+            "Supadata request or response error for video %s",
+            video_id,
+        )
+        raise TranscriptIngestionError(
+            "Supadata transcript service is temporarily unavailable.",
+            "supadata_service_error",
+            502,
+        ) from exc
+
+
+
 def fetch_transcript_with_fallback(
     video_id: str,
     language: str = "en",
 ) -> dict:
-    """Fetch captions first, then use OpenAI when captions cannot be obtained."""
+    """
+    Try Supadata first, then YouTube captions,
+    and finally OpenAI Whisper.
+    """
 
+    # First: Supadata
     try:
-        return fetch_transcript(video_id, language)
+        return fetch_transcript_from_supadata(
+            video_id,
+            language,
+        )
 
     except TranscriptIngestionError as exc:
-        # Never use the fallback for invalid input or unavailable videos.
+        logger.warning(
+            "Supadata failed for video %s (%s). "
+            "Trying YouTube Transcript API.",
+            video_id,
+            exc.code,
+        )
+
+    # Second: Existing YouTube Transcript API
+    try:
+        return fetch_transcript(
+            video_id,
+            language,
+        )
+
+    except TranscriptIngestionError as exc:
         fallback_codes = {
             "captions_unavailable",
             "transcript_upstream_unavailable",
@@ -196,112 +380,14 @@ def fetch_transcript_with_fallback(
             raise
 
         logger.warning(
-            "Captions unavailable for video %s (%s). "
-            "Trying OpenAI transcription.",
+            "YouTube captions unavailable for video %s (%s). "
+            "Trying OpenAI Whisper.",
             video_id,
             exc.code,
         )
 
-        return transcribe_youtube_audio(video_id, language)
-
-
-# import re
-# from urllib.parse import parse_qs, urlparse
-
-# from youtube_transcript_api import (
-#     YouTubeTranscriptApi,
-# )
-# from youtube_transcript_api._errors import (
-#     NoTranscriptFound,
-#     TranscriptsDisabled,
-#     VideoUnavailable,
-# )
-
-# VIDEO_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{11}$")
-
-
-# def extract_video_id(url: str) -> str:
-#     """Extract and validate the 11-character YouTube video ID."""
-
-#     if not url or not url.strip():
-#         raise ValueError("Please provide a YouTube URL.")
-
-#     parsed = urlparse(url.strip())
-#     host = (parsed.hostname or "").lower()
-#     video_id = None
-
-#     # Standard watch URL: youtube.com/watch?v=VIDEO_ID
-#     if host in {"youtube.com", "www.youtube.com", "m.youtube.com"}:
-#         if parsed.path == "/watch":
-#             video_id = parse_qs(parsed.query).get("v", [None])[0]
-
-#         # Shorts and live URLs
-#         elif parsed.path.startswith("/shorts/"):
-#             video_id = parsed.path.split("/")[2]
-
-#         elif parsed.path.startswith("/live/"):
-#             video_id = parsed.path.split("/")[2]
-
-#         elif parsed.path.startswith("/embed/"):
-#             video_id = parsed.path.split("/")[2]
-
-#     # Short URL: youtu.be/VIDEO_ID
-#     elif host == "youtu.be":
-#         video_id = parsed.path.strip("/").split("/")[0]
-
-#     if not video_id or not VIDEO_ID_PATTERN.fullmatch(video_id):
-#         raise ValueError("Invalid or unsupported YouTube URL.")
-
-#     return video_id
-
-# # urlparse() separates a URL into its host, path and query parameters.
-
-# # parse_qs() reads query parameters such as v=abcdefghijk.
-
-# # YouTube IDs are typically 11 characters; the regular expression validates their format.
-
-# def fetch_transcript(video_id: str) -> list[dict]:
-#     """
-#     Fetch captions and return normalized transcript segments.
-
-#     Each segment contains text, start time, and duration.
-#     """
-#     api = YouTubeTranscriptApi()
-
-#     try:
-#         transcript = api.fetch(video_id, languages=["en"])
-#         segments = transcript.to_raw_data()
-
-#     except NoTranscriptFound:
-#         raise ValueError(
-#             "No English captions were found for this video."
-#         ) from None
-
-#     except TranscriptsDisabled:
-#         raise ValueError(
-#             "Captions are disabled for this video."
-#         ) from None
-
-#     except VideoUnavailable:
-#         raise ValueError(
-#             "This YouTube video is unavailable."
-#         ) from None
-
-#     normalized = []
-
-#     for segment in segments:
-#         text = segment.get("text", "").strip()
-
-#         if not text:
-#             continue
-
-#         normalized.append({
-#             "text": text,
-#             "start": float(segment["start"]),
-#             "duration": float(segment["duration"]),
-#         })
-
-#     if not normalized:
-#         raise ValueError("The transcript is empty.")
-
-#     return normalized
+    # Third: Existing Whisper fallback
+    return transcribe_youtube_audio(
+        video_id,
+        language,
+    )

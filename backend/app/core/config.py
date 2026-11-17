@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     redis_url: str
     openai_api_key: str | None = None
+    supadata_api_key: str | None = None
+    supadata_base_url: str = "https://api.supadata.ai/v1"
     qdrant_url: str | None = None
     qdrant_api_key: str | None = None
     qdrant_collection_name: str = "youtube_transcripts_multilingual"
