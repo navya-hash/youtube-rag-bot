@@ -501,3 +501,45 @@ def update_chat_language(
     db.refresh(chat)
 
     return chat
+
+
+def update_chat_title(
+    db: Session,
+    chat: Chat,
+    title: str,
+) -> Chat:
+    """Update the title of an existing chat."""
+
+    chat.title = title
+    chat.updated_at = utc_now()
+
+    db.commit()
+    db.refresh(chat)
+
+    return chat
+
+
+def delete_chat(
+    db: Session,
+    chat: Chat,
+) -> None:
+    """Delete a chat and cascade-delete its messages and video associations."""
+
+    db.delete(chat)
+    db.commit()
+
+
+def remove_video_from_chat(
+    db: Session,
+    chat: Chat,
+    video_id: uuid.UUID,
+) -> bool:
+    """Remove the association between a video and a chat."""
+
+    association = db.get(ChatVideo, (chat.id, video_id))
+    if association and association.owner_id == chat.owner_id:
+        db.delete(association)
+        db.commit()
+        return True
+
+    return False

@@ -153,11 +153,17 @@ storage/
 vector_store_data/
 
 # ------------------------------------------------------------------------------
-# 8. Frontend (Node / Vite / React)
+# 8. Frontend (Next.js / Node / React)
 # ------------------------------------------------------------------------------
 # Node dependencies
 node_modules/
 frontend/node_modules/
+
+# Next.js build outputs & static export
+.next/
+frontend/.next/
+out/
+frontend/out/
 
 # Frontend production build outputs
 frontend/dist/
@@ -172,6 +178,8 @@ frontend/node_modules/.vite/
 .turbo/
 .eslintcache
 .oxlint_cache/
+*.tsbuildinfo
+next-env.d.ts
 
 # Package manager logs
 npm-debug.log*

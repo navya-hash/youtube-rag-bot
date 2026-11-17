@@ -126,31 +126,35 @@ def check_context_relevance(
     )
 
     try:
+        from app.services.generation_evaluation import call_with_rate_limit_retry
+
         settings = get_settings()
         client = get_groq_client()
 
-        completion = client.chat.completions.create(
-            model=settings.groq_classifier_model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT,
+        completion = call_with_rate_limit_retry(
+            lambda: client.chat.completions.create(
+                model=settings.groq_classifier_model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": SYSTEM_PROMPT,
+                    },
+                    {
+                        "role": "user",
+                        "content": classification_input,
+                    },
+                ],
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "context_relevance",
+                        "strict": True,
+                        "schema": RELEVANCE_RESPONSE_SCHEMA,
+                    },
                 },
-                {
-                    "role": "user",
-                    "content": classification_input,
-                },
-            ],
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "context_relevance",
-                    "strict": True,
-                    "schema": RELEVANCE_RESPONSE_SCHEMA,
-                },
-            },
-            temperature=0,
-            max_completion_tokens=500,
+                temperature=0,
+                max_completion_tokens=500,
+            )
         )
 
         content = completion.choices[0].message.content

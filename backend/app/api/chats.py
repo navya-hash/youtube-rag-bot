@@ -27,6 +27,10 @@ from app.db.repository import (
     list_messages,
     save_message,
     update_chat_language,
+    update_chat_title,
+    delete_chat,
+    list_chat_videos,
+    remove_video_from_chat,
 )
 from app.services.retrieval import (
     retrieve_relevant_chunks,
@@ -47,6 +51,9 @@ router = APIRouter(prefix="/api/v1/chats", tags=["Chats"])
 class CreateChatRequest(BaseModel):
     title: str = Field(default="New chat", min_length=1, max_length=200)
     output_language: str = Field(default=DEFAULT_LANGUAGE)
+
+class UpdateChatTitleRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
 
 class UpdateChatLanguageRequest(BaseModel):
     output_language: str = Field(min_length=1, max_length=50)
@@ -220,6 +227,136 @@ def update_chat_language_endpoint(
         "output_language": chat.output_language,
         "updated_at": chat.updated_at.isoformat(),
     }
+
+
+@router.patch("/{chat_id}")
+def update_chat_title_endpoint(
+    chat_id: uuid.UUID,
+    payload: UpdateChatTitleRequest,
+    clerk_user_id: str = Depends(require_user),
+    db: Session = Depends(get_db),
+):
+    user = resolve_user(db, clerk_user_id)
+    chat = get_owned_chat(db, chat_id, user.id)
+
+    if chat is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Chat not found",
+        )
+
+    title = payload.title.strip()
+    if not title:
+        raise HTTPException(
+            status_code=422,
+            detail="Chat title cannot be empty",
+        )
+
+    chat = update_chat_title(
+        db=db,
+        chat=chat,
+        title=title,
+    )
+
+    return {
+        "id": str(chat.id),
+        "title": chat.title,
+        "output_language": chat.output_language,
+        "created_at": chat.created_at.isoformat(),
+        "updated_at": chat.updated_at.isoformat(),
+    }
+
+
+@router.delete("/{chat_id}")
+def delete_chat_endpoint(
+    chat_id: uuid.UUID,
+    clerk_user_id: str = Depends(require_user),
+    db: Session = Depends(get_db),
+):
+    user = resolve_user(db, clerk_user_id)
+    chat = get_owned_chat(db, chat_id, user.id)
+
+    if chat is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Chat not found",
+        )
+
+    delete_chat(db=db, chat=chat)
+
+    return {
+        "message": "Chat deleted successfully",
+        "chat_id": str(chat_id),
+    }
+
+
+@router.get("/{chat_id}/videos")
+def list_chat_videos_endpoint(
+    chat_id: uuid.UUID,
+    clerk_user_id: str = Depends(require_user),
+    db: Session = Depends(get_db),
+):
+    user = resolve_user(db, clerk_user_id)
+    chat = get_owned_chat(db, chat_id, user.id)
+
+    if chat is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Chat not found",
+        )
+
+    videos = list_chat_videos(db, chat)
+
+    return [
+        {
+            "id": str(video.id),
+            "youtube_video_id": video.youtube_video_id,
+            "title": video.title,
+            "url": video.url,
+            "status": video.status,
+            "language": video.language,
+            "error_message": video.error_message,
+            "created_at": video.created_at.isoformat(),
+            "updated_at": video.updated_at.isoformat(),
+        }
+        for video in videos
+    ]
+
+
+@router.delete("/{chat_id}/videos/{video_id}")
+def remove_video_from_chat_endpoint(
+    chat_id: uuid.UUID,
+    video_id: uuid.UUID,
+    clerk_user_id: str = Depends(require_user),
+    db: Session = Depends(get_db),
+):
+    user = resolve_user(db, clerk_user_id)
+    chat = get_owned_chat(db, chat_id, user.id)
+
+    if chat is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Chat not found",
+        )
+
+    removed = remove_video_from_chat(
+        db=db,
+        chat=chat,
+        video_id=video_id,
+    )
+
+    if not removed:
+        raise HTTPException(
+            status_code=404,
+            detail="Video association not found for this chat",
+        )
+
+    return {
+        "message": "Video removed from chat",
+        "chat_id": str(chat_id),
+        "video_id": str(video_id),
+    }
+
 
 @router.post("/{chat_id}/messages")
 def add_message_endpoint(

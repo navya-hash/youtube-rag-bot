@@ -198,19 +198,23 @@ Standalone question:
 """
 
     try:
+        from app.services.generation_evaluation import call_with_rate_limit_retry
+
         settings = get_settings()
         client = get_groq_client()
 
-        completion = client.chat.completions.create(
-            model=settings.groq_model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            temperature=0.1,
-            max_completion_tokens=256,
+        completion = call_with_rate_limit_retry(
+            lambda: client.chat.completions.create(
+                model=settings.groq_model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+                temperature=0.1,
+                max_completion_tokens=256,
+            )
         )
 
         rewritten_question = completion.choices[0].message.content
@@ -378,16 +382,20 @@ grounded strictly in the retrieved transcript context.
 """
 
     try:
+        from app.services.generation_evaluation import call_with_rate_limit_retry
+
         client = get_groq_client()
 
-        completion = client.chat.completions.create(
-            model=settings.groq_model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            temperature=0.2,
-            max_completion_tokens=1024,
+        completion = call_with_rate_limit_retry(
+            lambda: client.chat.completions.create(
+                model=settings.groq_model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=0.2,
+                max_completion_tokens=1024,
+            )
         )
 
         answer = completion.choices[0].message.content

@@ -145,7 +145,7 @@ def verify_answer_claims(
         if chunk_text:
             prepared_chunks.append({
                 "chunk_number": index,
-                "text": chunk_text[:2000],
+                "text": chunk_text[:1000],
             })
 
     if not prepared_chunks:
@@ -164,34 +164,68 @@ def verify_answer_claims(
         get_groq_client,
         LLMServiceError,
     )
+    from app.services.generation_evaluation import call_with_rate_limit_retry
 
     try:
         settings = get_settings()
         client = get_groq_client()
 
-        completion = client.chat.completions.create(
-            model=settings.groq_classifier_model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT,
-                },
-                {
-                    "role": "user",
-                    "content": verification_input,
-                },
-            ],
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "hallucination_verification",
-                    "strict": True,
-                    "schema": HALLUCINATION_RESPONSE_SCHEMA,
-                },
-            },
-            temperature=0,
-            max_completion_tokens=1500,
-        )
+        # Claim verification requires strong reasoning and output capacity;
+        # groq_model (e.g. 120b) handles structured claim verification reliably.
+        model_name = settings.groq_model or settings.groq_classifier_model
+
+        def _do_verification():
+            try:
+                return client.chat.completions.create(
+                    model=model_name,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": SYSTEM_PROMPT,
+                        },
+                        {
+                            "role": "user",
+                            "content": verification_input,
+                        },
+                    ],
+                    response_format={
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": "hallucination_verification",
+                            "strict": True,
+                            "schema": HALLUCINATION_RESPONSE_SCHEMA,
+                        },
+                    },
+                    temperature=0,
+                    max_completion_tokens=2048,
+                )
+            except Exception as api_err:
+                # If strict json_schema fails validation on Groq, fallback to json_object
+                if "json_validate_failed" in str(api_err).lower() or "bad request" in str(api_err).lower():
+                    logger.warning(
+                        "Strict JSON schema failed in hallucination check, falling back to json_object: %s",
+                        api_err,
+                    )
+                    return client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {
+                                "role": "system",
+                                "content": SYSTEM_PROMPT
+                                + "\nYou MUST return valid JSON matching the schema with key 'claims'.",
+                            },
+                            {
+                                "role": "user",
+                                "content": verification_input,
+                            },
+                        ],
+                        response_format={"type": "json_object"},
+                        temperature=0,
+                        max_completion_tokens=2048,
+                    )
+                raise
+
+        completion = call_with_rate_limit_retry(_do_verification)
 
         content = completion.choices[0].message.content
 
@@ -200,7 +234,15 @@ def verify_answer_claims(
                 "Hallucination verifier returned an empty response."
             )
 
-        result = HallucinationResult.model_validate_json(content)
+        clean_content = content.strip()
+        if clean_content.startswith("```json"):
+            clean_content = clean_content[7:].strip()
+        elif clean_content.startswith("```"):
+            clean_content = clean_content[3:].strip()
+        if clean_content.endswith("```"):
+            clean_content = clean_content[:-3].strip()
+
+        result = HallucinationResult.model_validate_json(clean_content)
 
         logger.info(
             "Claim verification completed: %s total, %s unsupported.",
@@ -211,7 +253,7 @@ def verify_answer_claims(
         return result
 
     except Exception as exc:
-        logger.exception("Hallucination verification failed.")
+        logger.exception("Hallucination verification failed: %s", exc)
 
         raise LLMServiceError(
             "Unable to verify answer claims."
