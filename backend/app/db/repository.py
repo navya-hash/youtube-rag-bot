@@ -66,11 +66,11 @@ def create_chat(
 
 
 def list_chats(db: Session, owner_id: uuid.UUID) -> list[Chat]:
-    """Return only the specified user's chats, newest first."""
+    """Return only the specified user's chats, newest first by creation order."""
     statement = (
         select(Chat)
         .where(Chat.owner_id == owner_id)
-        .order_by(Chat.updated_at.desc(), Chat.id.desc())
+        .order_by(Chat.created_at.desc(), Chat.id.desc())
     )
     return list(db.scalars(statement).all())
 

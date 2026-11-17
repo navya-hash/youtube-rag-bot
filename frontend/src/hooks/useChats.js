@@ -41,6 +41,24 @@ export function useChats() {
       const token = await getToken();
       return updateChatTitle(chatId, title, token);
     },
+    onMutate: async ({ chatId, title }) => {
+      await queryClient.cancelQueries({ queryKey: ["chats"] });
+      const previousChats = queryClient.getQueryData(["chats"]);
+      if (previousChats) {
+        queryClient.setQueryData(
+          ["chats"],
+          previousChats.map((c) =>
+            c.id === chatId ? { ...c, title } : c
+          )
+        );
+      }
+      return { previousChats };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousChats) {
+        queryClient.setQueryData(["chats"], context.previousChats);
+      }
+    },
     onSuccess: (updatedChat) => {
       queryClient.invalidateQueries({ queryKey: ["chats"] });
       queryClient.invalidateQueries({ queryKey: ["chat", updatedChat.id] });
@@ -51,6 +69,24 @@ export function useChats() {
     mutationFn: async ({ chatId, language }) => {
       const token = await getToken();
       return updateChatLanguage(chatId, language, token);
+    },
+    onMutate: async ({ chatId, language }) => {
+      await queryClient.cancelQueries({ queryKey: ["chats"] });
+      const previousChats = queryClient.getQueryData(["chats"]);
+      if (previousChats) {
+        queryClient.setQueryData(
+          ["chats"],
+          previousChats.map((c) =>
+            c.id === chatId ? { ...c, output_language: language } : c
+          )
+        );
+      }
+      return { previousChats };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousChats) {
+        queryClient.setQueryData(["chats"], context.previousChats);
+      }
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["chats"] });
