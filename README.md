@@ -15,30 +15,11 @@
 [![Clerk](https://img.shields.io/badge/Clerk-Authentication-6C47FF?style=flat&logo=clerk&logoColor=white)](https://clerk.com/)
 [![Groq](https://img.shields.io/badge/Groq-LPU_Inference-F05A28?style=flat)](https://groq.com/)
 
-[Live Demo](#screenshots--demo) • [System Architecture](#system-architecture) • [RAG Pipeline](#rag-workflow) • [API Documentation](#api-documentation) • [Setup Guide](#installation--setup)
 
 </div>
 
 ---
 
-## 📌 Table of Contents
-
-- [Project Overview](#project-overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [System Architecture](#system-architecture)
-- [RAG Workflow](#rag-workflow)
-- [Guardrails & Safety Pipeline](#guardrails--safety-pipeline)
-- [Project Structure](#project-structure)
-- [Installation & Setup](#installation--setup)
-- [Environment Variables](#environment-variables)
-- [API Documentation](#api-documentation)
-- [Evaluation & Benchmarks](#evaluation--benchmarks)
-- [Screenshots / Demo](#screenshots--demo)
-- [Future Improvements](#future-improvements)
-- [Author & Contact](#author--contact)
-
----
 
 ## 📖 Project Overview
 
@@ -98,64 +79,67 @@ Unlike naive RAG wrappers, this platform implements a resilient end-to-end archi
 
 ```mermaid
 flowchart TD
-    subgraph Client["Frontend Client (Next.js 15 + Clerk)"]
+    subgraph Client["Frontend Client"]
         UI["React 19 UI / Chat Workspace"]
         AuthClient["Clerk Auth Provider"]
         QueryCache["TanStack Query Cache"]
     end
 
-    subgraph Gateway["API Gateway & Middleware (FastAPI)"]
+    subgraph Gateway["API Gateway and Middleware"]
         AuthMiddleware["Clerk JWT Authentication"]
-        CORSMiddleware["CORS & Origin Validation"]
-        Routers["Chat, YouTube & Video Routers"]
+        CORSMiddleware["CORS and Origin Validation"]
+        Routers["Chat, YouTube and Video Routers"]
     end
 
     subgraph Guardrails["Multi-Stage Guardrail Pipeline"]
-        IntentGuard["Intent & Injection Classifier (Groq 20B)"]
-        QueryRewriter["Conversational Query Rewriter (Groq 120B)"]
-        RelevanceGuard["Context Relevance Evaluator (Groq 20B)"]
-        PIIGuard["PII & Secrets Redaction"]
+        IntentGuard["Intent and Injection Classifier"]
+        QueryRewriter["Conversational Query Rewriter"]
+        RelevanceGuard["Context Relevance Evaluator"]
+        PIIGuard["PII and Secrets Redaction"]
         ToxicityGuard["Toxicity Detection Guardrail"]
-        HallucinationGuard["Claim Verification Guardrail (Groq 120B)"]
+        HallucinationGuard["Claim Verification Guardrail"]
     end
 
-    subgraph RetrievalLayer["Retrieval & Ranking Engine"]
-        FastEmbedEngine["FastEmbed (MiniLM-L12-v2)"]
+    subgraph RetrievalLayer["Retrieval and Ranking Engine"]
+        FastEmbedEngine["FastEmbed MiniLM-L12-v2"]
         QdrantStore[("Qdrant Cloud Vector DB")]
         FlashRankReranker["FlashRank Neural Reranker"]
     end
 
-    subgraph DataStorage["Data & State Persistence"]
+    subgraph DataStorage["Data and State Persistence"]
         PostgresDB[("Neon PostgreSQL DB")]
-        RedisCache[("Upstash Redis (Cache & Broker)")]
+        RedisCache[("Upstash Redis Cache and Broker")]
     end
 
     subgraph AsyncWorkers["Background Worker Services"]
-        CeleryWorker["Celery Worker (video_summarization queue)"]
-        PDFEngine["ReportLab PDF Generator (Unicode Fonts)"]
+        CeleryWorker["Celery Worker video_summarization"]
+        PDFEngine["ReportLab PDF Generator"]
+        GroqLLM["Groq LPU Engine"]
     end
 
-    UI -->|"HTTP / REST API (JWT Bearer)"| AuthMiddleware
-    AuthMiddleware --> CORSMiddleware --> Routers
-    
-    Routers -->|"Check / Save State"| PostgresDB
-    Routers -->|"Intent & Safety Check"| IntentGuard
+    UI -->|"HTTP REST API JWT Bearer"| AuthMiddleware
+    AuthMiddleware --> CORSMiddleware
+    CORSMiddleware --> Routers
+
+    Routers -->|"Check or Save State"| PostgresDB
+    Routers -->|"Intent and Safety Check"| IntentGuard
     IntentGuard -->|"Rewrite Follow-up"| QueryRewriter
-    
+
     QueryRewriter -->|"Check Cache"| RedisCache
     QueryRewriter -->|"Query Embedding"| FastEmbedEngine
-    FastEmbedEngine -->|"Dense Search (Top 15)"| QdrantStore
+    FastEmbedEngine -->|"Dense Search Top 15"| QdrantStore
     QdrantStore -->|"Candidates"| FlashRankReranker
     FlashRankReranker -->|"Top 5 Chunks"| RelevanceGuard
-    
+
     RelevanceGuard -->|"Generate Grounded Answer"| HallucinationGuard
-    HallucinationGuard -->|"Filter Toxicity & Mask PII"| ToxicityGuard
-    ToxicityGuard --> PIIGuard -->|"Stream Answer + Citations"| UI
+    HallucinationGuard -->|"Filter Toxicity and Mask PII"| ToxicityGuard
+    ToxicityGuard --> PIIGuard
+    PIIGuard -->|"Stream Answer and Citations"| UI
 
     Routers -->|"Enqueue Summary Job"| RedisCache
     RedisCache -->|"Consume Task"| CeleryWorker
     CeleryWorker -->|"Fetch Transcripts"| PostgresDB
-    CeleryWorker -->|"Structured Summary"| GroqLLM["Groq LPU Engine"]
+    CeleryWorker -->|"Structured Summary"| GroqLLM
     CeleryWorker -->|"Store Summary"| PostgresDB
     Routers -->|"Download PDF"| PDFEngine
 ```
@@ -169,7 +153,7 @@ The core retrieval and answer generation pipeline consists of 6 discrete phases:
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as User
+    actor User
     participant FE as Next.js Frontend
     participant API as FastAPI Backend
     participant Redis as Upstash Redis
@@ -179,26 +163,26 @@ sequenceDiagram
     participant Groq as Groq LLM
     participant DB as PostgreSQL
 
-    User->>FE: Ask question ("What is RAG?")
-    FE->>API: POST /api/v1/chats/{chat_id}/ask
-    API->>Groq: Classify intent & prompt injection
+    User->>FE: Ask question - What is RAG?
+    FE->>API: POST /api/v1/chats/chat_id/ask
+    API->>Groq: Classify intent and prompt injection
     alt In-scope RAG query
         API->>Groq: Rewrite conversational query with history
         API->>Redis: Check retrieval cache key
         alt Cache Miss
             API->>FastEmbed: Generate 384-d query embedding
-            API->>Qdrant: Search top 15 candidate chunks (filtered by owner & video IDs)
+            API->>Qdrant: Search top 15 chunks filtered by owner and video IDs
             API->>FlashRank: Cross-encoder rerank candidates to top 5
             API->>Redis: Cache reranked chunks with video dependencies
         else Cache Hit
             Redis-->>API: Return cached reranked chunks
         end
-        API->>Groq: Check context relevance (relevant / partial / irrelevant)
-        API->>Redis: Check answer cache (SHA-256 prompt+context digest)
+        API->>Groq: Check context relevance relevant, partial, or irrelevant
+        API->>Redis: Check answer cache SHA-256 prompt and context digest
         alt Cache Miss
             API->>Groq: Generate answer in selected output language
-            API->>API: Mask PII & detect toxicity
-            API->>Groq: Extract claims & verify against transcript chunks
+            API->>API: Mask PII and detect toxicity
+            API->>Groq: Extract claims and verify against transcript chunks
             alt Fully Supported
                 API->>Redis: Cache verified answer
             else Hallucination Detected
@@ -207,7 +191,7 @@ sequenceDiagram
         else Cache Hit
             Redis-->>API: Return cached verified answer
         end
-        API->>DB: Persist user question & assistant message with citations
+        API->>DB: Persist question and assistant message with citations
         API-->>FE: Return answer, citations, and language metadata
         FE-->>User: Render markdown response with interactive citations
     end
@@ -519,19 +503,6 @@ cd C:\ytBOT\backend
 
 ---
 
-## 🖼 Screenshots / Demo
-
-> *Note: Place project screenshots or GIF walkthroughs in `frontend/public/screenshots/` and update the paths below.*
-
-| Chat Workspace & Citations | Multilingual Video Context Panel |
-| :---: | :---: |
-| ![Chat Workspace Placeholder](https://via.placeholder.com/600x380/0A0F1D/38BDF8?text=Chat+Workspace+%2B+Grounded+Citations) | ![Video Context Panel Placeholder](https://via.placeholder.com/600x380/0A0F1D/38BDF8?text=Video+Context+Panel+%2B+Badges) |
-
-| Asynchronous Video Summarization | Multilingual PDF Report Export |
-| :---: | :---: |
-| ![Summarization Modal Placeholder](https://via.placeholder.com/600x380/0A0F1D/38BDF8?text=Async+Video+Summarizer+Modal) | ![PDF Export Placeholder](https://via.placeholder.com/600x380/0A0F1D/38BDF8?text=ReportLab+Multilingual+PDF+Export) |
-
----
 
 ## 🔮 Future Improvements
 
